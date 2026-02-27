@@ -429,7 +429,7 @@ fun sum(n: u64): u64 {
 
 ```move
 /// Iterate over vector with for loop + index notation
-public fun sum_all(items: &vector<u64>): u64 {
+fun sum_all(items: &vector<u64>): u64 {
     let total = 0;
     for (i in 0..items.length()) {
         total += items[i];
@@ -444,8 +444,8 @@ public fun sum_all(items: &vector<u64>): u64 {
 |-------|-------------|
 | `for (i in 0..n)` | **Default choice.** Counter-based iteration over ranges or vector indices |
 | `vector::for_each_ref` / `vector::fold` / etc. | Functional-style iteration with lambdas (see Stdlib Inline Functions below) |
-| `loop` | Infinite loops with explicit `break` conditions |
 | `while` | When iteration count isn't known upfront: dynamic termination conditions, step size != 1, searching/draining |
+| `loop` | Truly infinite loops (e.g., event loops). **Avoid** when a `while` with an exit condition would be clearer |
 
 ---
 
