@@ -40,8 +40,7 @@ T1-03 (receiver style) requires verifying the target function's first parameter 
 - **Search for:** `x = x + expr` where `x` is a simple variable or field access
 - **Pattern:** `count = count + 1` or `total = total + amount`
 - **Replace with:** `count += 1` or `total += amount`
-- **Detection regex:** `(\w+)\s*=\s*\1\s*\+\s*`
-- **Note:** `(\w+)` catches simple identifiers. Field access like `self.field` requires the broader pattern `([\w.]+)\s*=\s*\1\s*\+\s*` or manual review.
+- **Detection regex:** `([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\s*=\s*\1\s*\+\s*`
 
 ### T1-05: Subtract Assignment (Move 2.1+)
 
