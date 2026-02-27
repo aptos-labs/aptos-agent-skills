@@ -489,7 +489,8 @@ Remove `inline` and the compiler will fail — the `&mut TicTacToe` reference es
 ```move
 /// Custom inline function that takes a lambda (only define when stdlib doesn't have an equivalent)
 inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
-    for (i in 0..v.length() - 1) {
+    let len = v.length() - 1;
+    for (i in 0..len) {
         f(&v[i], &v[i + 1]);
     }
 }
@@ -601,7 +602,8 @@ Only define custom inline helpers when no stdlib function fits. Prefer `for` loo
 ```move
 /// Custom: sliding window pairs (no stdlib equivalent)
 inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
-    for (i in 0..v.length() - 1) {
+    let len = v.length() - 1;
+    for (i in 0..len) {
         f(&v[i], &v[i + 1]);
     }
 }
