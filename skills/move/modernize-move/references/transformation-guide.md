@@ -1,6 +1,6 @@
 # Modernize Move — Transformation Guide
 
-Step-by-step transformation instructions with before/after code, safety checks, and edge cases for each detection rule.
+Step-by-step transformation instructions with before/after code, safety checks, and edge cases. Covers Tier 1 and Tier 2 in full detail. Tier 3 rules T3-02, T3-04, and T3-06 are flagged as "manual rewrite" in detection rules and do not have step-by-step guidance here — refer to the dedicated pattern docs (DIGITAL_ASSETS.md, OBJECTS.md, ADVANCED_TYPES.md).
 
 ---
 
@@ -26,7 +26,7 @@ let nested = borrow_global<State>(addr).items[i];
 1. Find all `vector::borrow(&` calls
 2. Replace `*vector::borrow(&v, i)` with `v[i]`
 3. For nested access like `*vector::borrow(&container.field, i)`, use `container.field[i]`
-4. Remove the leading `*` dereference — index notation returns the value directly
+4. Remove the leading `*` dereference — `v[i]` auto-dereferences in value context (produces a copy for `copy` types). Use `&v[i]` when an explicit reference is needed.
 
 **Edge cases:**
 - When the result is used as a reference (`vector::borrow(&v, i)` without `*`), replace with `&v[i]`
@@ -52,7 +52,9 @@ let elem = &mut items[i];
 **Steps:**
 1. Find all `vector::borrow_mut(&mut` calls
 2. For direct assignment: `*vector::borrow_mut(&mut v, i) = val` → `v[i] = val`
-3. For reference binding: `vector::borrow_mut(&mut v, i)` → `&mut v[i]`
+3. For mutable reference binding: `vector::borrow_mut(&mut v, i)` → `&mut v[i]`
+
+Both forms are valid — `v[i] = value` for direct assignment, `&mut v[i]` for mutable reference binding.
 
 **Edge cases:**
 - When mutating a struct field within the vector element, keep the mutable reference pattern: `let elem = &mut v[i]; elem.field = val`
@@ -185,20 +187,20 @@ module my_addr::core {
 **After:**
 ```move
 module my_addr::core {
-    public(package) fun internal_transfer(from: address, to: address, amount: u64) {
+    package fun internal_transfer(from: address, to: address, amount: u64) {
         // ...
     }
 }
 ```
 
 **Steps:**
-1. Replace all `public(friend) fun` with `public(package) fun`
+1. Replace all `public(friend) fun` with `package fun`
 2. Remove all `friend` declarations (T2-02) — they are no longer needed
 3. Verify all callers are in the same package (check Move.toml `[addresses]`)
 
 **Safety checks:**
-- `public(package)` makes the function visible to ALL modules in the same package, not just the listed friends. This is usually fine but could expose the function to new callers if the package has many modules.
-- If any callers are in a DIFFERENT package, you cannot use `public(package)` — keep `public(friend)` or make fully `public`.
+- `package fun` makes the function visible to ALL modules in the same package, not just the listed friends. This is usually fine but could expose the function to new callers if the package has many modules.
+- If any callers are in a DIFFERENT package, you cannot use `package fun` — keep `public(friend)` or make fully `public`.
 
 ### T2-02: Friend Declarations → Remove
 
@@ -211,7 +213,7 @@ friend my_addr::utils;
 **After:** (lines deleted)
 
 **Steps:**
-1. Complete T2-01 first (convert all `public(friend)` to `public(package)`)
+1. Complete T2-01 first (convert all `public(friend)` to `package fun`)
 2. Delete all `friend` declaration lines
 3. Remove any `use` imports that were only needed for friend declarations
 
@@ -259,33 +261,17 @@ public fun transfer(from: &signer, to: address, amount: u64) {
 - If a constant with the same value already exists, reuse it rather than creating a duplicate
 - `abort` expressions in nested contexts: `if (cond) { abort 5 }` → `if (cond) { abort E_SOME_ERROR }`
 
-### T2-04 + T2-05: EventHandle → #[event] Struct
-
-**Key changes:**
-- `event::emit_event(&mut handle.events, MyEvent { ... })` → `event::emit(MyEvent { ... })`
-- Add `#[event]` attribute above event struct definitions
-- Remove `EventHandle<T>` fields from storage structs
-- Remove `account::new_event_handle<T>(signer)` calls from `init_module`
-- Update imports: remove `EventHandle`, remove `account` if only used for handles
-- If storage struct ONLY contained event handles, remove the entire struct + its `acquires`
-
-**Steps:**
-1. Add `#[event]` attribute above each event struct
-2. Replace all `emit_event` calls with `event::emit()`
-3. Remove `EventHandle<T>` fields and their initialization
-4. Clean up imports, `acquires`, and `borrow_global_mut` for removed structs
-
-**Safety checks:**
-- External indexers may depend on EventHandle-based event stream. The `#[event]` pattern uses a different stream. Note in analysis report.
-- If already deployed and indexed, coordinate with indexer updates.
-
 ---
 
 ## Tier 3 Transformations — API & Pattern Migrations
 
 **Apply ONE AT A TIME. Run tests after each. Revert on failure.**
 
+Most Tier 3 rules are **breaking changes** — they alter the on-chain ABI, storage layout, or event stream format. When the user selects `compatible` deployment mode, skip rules marked with a breaking-change warning.
+
 ### T3-01: Raw Address Params → Object<T>
+
+**⚠ Breaking change** — changes function ABI. All off-chain callers must update.
 
 **Before:**
 ```move
@@ -339,6 +325,8 @@ This is a major rewrite. Key API differences:
 
 ### T3-05: SmartTable → BigOrderedMap
 
+**⚠ Breaking change** — different storage layout, incompatible with existing on-chain data.
+
 Replace `SmartTable<K, V>` with `BigOrderedMap<K, V>`. Replace `smart_table::` prefix with `big_ordered_map::`.
 
 **Key API differences:**
@@ -354,9 +342,9 @@ Replace `SmartTable<K, V>` with `BigOrderedMap<K, V>`. Replace `smart_table::` p
 
 **Before (after T1-09 has been applied):**
 ```move
-public fun sum_amounts(items: &vector<Item>): u64 {
+fun sum_amounts(items: &vector<Item>): u64 {
     let total = 0;
-    for (i in 0..vector::length(items)) {
+    for (i in 0..items.length()) {
         total += items[i].amount;
     };
     total
@@ -365,26 +353,26 @@ public fun sum_amounts(items: &vector<Item>): u64 {
 
 **After:**
 ```move
-public fun sum_amounts(items: &vector<Item>): u64 {
-    vector::fold(*items, 0, |acc, item| acc + item.amount)
+fun sum_amounts(items: &vector<Item>): u64 {
+    items.fold(0, |acc, item| acc + item.amount)
 }
 ```
 
 **Stdlib inline functions to use (do NOT define custom helpers when stdlib equivalents exist):**
 
-| Pattern | Stdlib Function | Signature |
-|---------|----------------|-----------|
-| Read each element | `vector::for_each_ref` | `(&vector<T>, \|&T\|)` |
-| Mutate each element | `vector::for_each_mut` | `(&mut vector<T>, \|&mut T\|)` |
-| Consume each element | `vector::for_each` | `(vector<T>, \|T\|)` |
-| Read with index | `vector::enumerate_ref` | `(&vector<T>, \|u64, &T\|)` |
-| Mutate with index | `vector::enumerate_mut` | `(&mut vector<T>, \|u64, &mut T\|)` |
-| Transform elements | `vector::map` / `vector::map_ref` | `(vector<T>, \|T\|U): vector<U>` |
-| Reduce to value | `vector::fold` | `(vector<T>, Acc, \|Acc, T\|Acc): Acc` |
-| Filter elements | `vector::filter` | `(vector<T>, \|&T\|bool): vector<T>` |
-| Any match | `vector::any` | `(&vector<T>, \|&T\|bool): bool` |
-| All match | `vector::all` | `(&vector<T>, \|&T\|bool): bool` |
-| Zip two vectors | `vector::zip` / `vector::zip_ref` | `(vector<T>, vector<U>, \|T, U\|)` |
+| Pattern | Module-qualified | Receiver style | Signature |
+|---------|-----------------|---------------|-----------|
+| Read each element | `vector::for_each_ref` | `v.for_each_ref(\|&T\|)` | `(&vector<T>, \|&T\|)` |
+| Mutate each element | `vector::for_each_mut` | `v.for_each_mut(\|&mut T\|)` | `(&mut vector<T>, \|&mut T\|)` |
+| Consume each element | `vector::for_each` | `v.for_each(\|T\|)` | `(vector<T>, \|T\|)` |
+| Read with index | `vector::enumerate_ref` | `v.enumerate_ref(\|u64, &T\|)` | `(&vector<T>, \|u64, &T\|)` |
+| Mutate with index | `vector::enumerate_mut` | `v.enumerate_mut(\|u64, &mut T\|)` | `(&mut vector<T>, \|u64, &mut T\|)` |
+| Transform elements | `vector::map` / `map_ref` | `v.map(\|T\|U)` | `(vector<T>, \|T\|U): vector<U>` |
+| Reduce to value | `vector::fold` | `v.fold(init, \|Acc, T\|Acc)` | `(vector<T>, Acc, \|Acc, T\|Acc): Acc` |
+| Filter elements | `vector::filter` | `v.filter(\|&T\|bool)` | `(vector<T>, \|&T\|bool): vector<T>` |
+| Any match | `vector::any` | `v.any(\|&T\|bool)` | `(&vector<T>, \|&T\|bool): bool` |
+| All match | `vector::all` | `v.all(\|&T\|bool)` | `(&vector<T>, \|&T\|bool): bool` |
+| Zip two vectors | `vector::zip` / `zip_ref` | `a.zip(b, \|T, U\|)` | `(vector<T>, vector<U>, \|T, U\|)` |
 
 **Steps:**
 1. Identify `for` loops that iterate over a vector using index access
@@ -401,7 +389,31 @@ public fun sum_amounts(items: &vector<Item>): u64 {
 
 ### T3-08: Custom Signed Int → Native Types
 
+**⚠ Breaking change** — different storage representation, incompatible with existing on-chain data.
+
 Replace custom `struct I64 { value: u64, negative: bool }` with native `i64`. Replace custom arithmetic functions (`add_i64`, `sub_i64`, etc.) with native operators (`+`, `-`, `*`, `/`). Remove the custom module and update all callers.
+
+### T3-09 + T3-10: EventHandle → #[event] Struct
+
+**⚠ Breaking change** — changes event stream format. Indexers must be updated.
+
+**Key changes:**
+- `event::emit_event(&mut handle.events, MyEvent { ... })` → `event::emit(MyEvent { ... })`
+- Add `#[event]` attribute above event struct definitions
+- Remove `EventHandle<T>` fields from storage structs
+- Remove `account::new_event_handle<T>(signer)` calls from `init_module`
+- Update imports: remove `EventHandle`, remove `account` if only used for handles
+- If storage struct ONLY contained event handles, remove the entire struct + its `acquires`
+
+**Steps:**
+1. Add `#[event]` attribute above each event struct
+2. Replace all `emit_event` calls with `event::emit()`
+3. Remove `EventHandle<T>` fields and their initialization
+4. Clean up imports, `acquires`, and `borrow_global_mut` for removed structs
+
+**Safety checks:**
+- External indexers may depend on EventHandle-based event stream. The `#[event]` pattern uses a different stream. Note in analysis report.
+- If already deployed and indexed, coordinate with indexer updates.
 
 ---
 

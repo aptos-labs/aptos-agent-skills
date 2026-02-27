@@ -45,13 +45,13 @@ Five non-negotiable rules for every modernization:
 ## When to Use This Skill
 
 - Upgrading Move V1 contracts to V2 syntax
-- Migrating `public(friend)` to `public(package)`
+- Migrating `public(friend)` to `package fun`
 - Converting `vector::borrow` to index notation
 - Converting `while` loops with counters to `for` range loops
 - Replacing manual vector iteration with stdlib inline functions (`vector::for_each_ref`, `vector::map`, `vector::fold`, etc.) and lambdas
 - Replacing magic abort numbers with named constants
-- Converting `EventHandle` to `#[event]` pattern
 - Migrating legacy `coin`/`TokenV1` to modern `fungible_asset`/Digital Assets
+- Converting `EventHandle` to `#[event]` pattern
 - Upgrading custom signed integer workarounds to native `i8`-`i256` types
 
 ## When NOT to Use This Skill
@@ -74,7 +74,7 @@ Five non-negotiable rules for every modernization:
    - Grep for Tier 1 patterns (syntax) — highest confidence, most common
    - Grep for Tier 2 patterns (visibility, errors, events)
    - Grep for Tier 3 patterns (API migrations) — flag for manual review
-3. Cross-reference coupled patterns (T2-01+T2-02, T2-04+T2-05)
+3. Cross-reference coupled patterns (T2-01+T2-02, T3-09+T3-10)
 4. Categorize each finding: line number, rule ID, pattern name, proposed change, tier, confidence
 5. Build the Analysis Report
 
@@ -112,8 +112,13 @@ Five non-negotiable rules for every modernization:
    - **`standard`** (Tier 1 + Tier 2) — recommended default, syntax + visibility + error constants
    - **`full`** (all tiers) — includes API migrations, higher risk
 3. Highlight any Tier 3 items that require major rewrites
+4. If scope includes Tier 3, ask the user about deployment context:
+   - **Compatible** — Upgrading an already-deployed contract. Breaking changes
+     are excluded even if the scope includes them. Rules marked ⚠ Breaking are skipped.
+   - **Fresh deploy** — New deployment or willing to redeploy. All changes
+     in the selected scope are applied including breaking changes.
 
-**Exit:** User has confirmed scope. Do NOT proceed until confirmed.
+**Exit:** User has confirmed scope (and deployment context if Tier 3 is included). Do NOT proceed until confirmed.
 
 ### Phase 3: Establish Test Safety Net
 
@@ -149,6 +154,8 @@ Five non-negotiable rules for every modernization:
 
 **Tier 3 (if scope is `full` only):**
 7. Apply Tier 3 changes ONE AT A TIME (not all at once)
+   - If deployment context is `compatible`: skip any rule marked **⚠ Breaking**. Add to the skipped list with reason "breaking change, excluded in compatible mode."
+   - If deployment context is `fresh deploy`: apply all rules in scope normally.
 8. Run `aptos move test` after EACH individual Tier 3 change
 9. If tests fail → revert that specific change, note it as skipped, proceed to next Tier 3 item
 
@@ -198,8 +205,8 @@ Five non-negotiable rules for every modernization:
 | Tier | What Changes | Risk | Examples |
 |------|-------------|------|----------|
 | 1 — Syntax | Code reads differently, compiles identically | Zero | `vector::borrow(&v, i)` → `v[i]`, `x = x + 1` → `x += 1`, `while (i < n) { ... i += 1 }` → `for (i in 0..n) { ... }` |
-| 2 — Visibility & Errors | Same semantics, cleaner declarations | Low | `public(friend)` → `public(package)`, magic numbers → `E_*` constants |
-| 3 — API Migrations | Different APIs, same intended behavior | Medium-High | `coin` → `fungible_asset`, `SmartTable` → `BigOrderedMap`, manual loops → stdlib `vector::for_each_ref`/`map`/`fold` with lambdas |
+| 2 — Visibility & Errors | Same semantics, cleaner declarations | Low | `public(friend)` → `package fun`, magic numbers → `E_*` constants |
+| 3 — API Migrations | Different APIs, same intended behavior. Most are **breaking changes**. | Medium-High | `coin` → `fungible_asset`, `SmartTable` → `BigOrderedMap`, `EventHandle` → `#[event]`, manual loops → stdlib `v.for_each_ref()`/`v.map()`/`v.fold()` with lambdas |
 
 See [detection-rules.md](references/detection-rules.md) for the complete rule catalog (22 rules across 3 tiers).
 
@@ -223,6 +230,7 @@ See [detection-rules.md](references/detection-rules.md) for the complete rule ca
 - [ ] Tests pass after each tier of changes
 - [ ] All error code numeric values preserved
 - [ ] No Tier 3 changes applied without `full` scope confirmation
+- [ ] Breaking changes excluded when user selected compatible mode
 - [ ] Modernization Summary Report generated
 - [ ] Test coverage maintained at or above baseline
 
@@ -230,7 +238,7 @@ See [detection-rules.md](references/detection-rules.md) for the complete rule ca
 
 | File | Content |
 |------|---------|
-| [detection-rules.md](references/detection-rules.md) | Complete V1 pattern detection catalog (21 rules, 3 tiers) |
+| [detection-rules.md](references/detection-rules.md) | Complete V1 pattern detection catalog (22 rules across 3 tiers) |
 | [transformation-guide.md](references/transformation-guide.md) | Before/after code, safety checks, edge cases per rule |
 | [MOVE_V2_SYNTAX.md](../../../patterns/move/MOVE_V2_SYNTAX.md) | Full V2 syntax reference |
 | [OBJECTS.md](../../../patterns/move/OBJECTS.md) | Modern object model patterns |

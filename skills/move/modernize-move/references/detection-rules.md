@@ -4,9 +4,10 @@ Complete catalog of V1/outdated pattern detection rules organized by tier. Each 
 
 ---
 
-## Tier 1 — Syntax (Zero Risk)
+## Tier 1 — Syntax (Safe — Identical Compiled Output)
 
-These changes produce identical compiled output. Safe to apply unconditionally.
+These changes produce identical compiled output. Most apply unconditionally;
+T1-03 (receiver style) requires verifying the target function's first parameter is named `self`.
 
 ### T1-01: Vector Borrow → Index Notation (Move 2.0+)
 
@@ -40,6 +41,7 @@ These changes produce identical compiled output. Safe to apply unconditionally.
 - **Pattern:** `count = count + 1` or `total = total + amount`
 - **Replace with:** `count += 1` or `total += amount`
 - **Detection regex:** `(\w+)\s*=\s*\1\s*\+\s*`
+- **Note:** `(\w+)` catches simple identifiers. Field access like `self.field` requires the broader pattern `([\w.]+)\s*=\s*\1\s*\+\s*` or manual review.
 
 ### T1-05: Subtract Assignment (Move 2.1+)
 
@@ -105,8 +107,8 @@ Same semantics, cleaner code. May require updating test annotations.
 
 - **Confidence:** High
 - **Search for:** `public(friend) fun`
-- **Replace with:** `public(package) fun`
-- **Safety check:** Verify all calling modules are in the same package (check Move.toml). `public(package)` restricts to same-package modules only.
+- **Replace with:** `package fun`
+- **Safety check:** Verify all calling modules are in the same package (check Move.toml). `package fun` restricts to same-package modules only.
 - **Detection regex:** `public\(friend\)\s+fun`
 
 ### T2-02: Friend Declarations → Remove (Move 2.1+)
@@ -114,7 +116,7 @@ Same semantics, cleaner code. May require updating test annotations.
 - **Confidence:** High
 - **Search for:** `friend my_addr::module_name;`
 - **Replace with:** Delete the entire line
-- **Safety check:** Only remove after converting all `public(friend)` to `public(package)` (T2-01 first).
+- **Safety check:** Only remove after converting all `public(friend)` to `package fun` (T2-01 first).
 - **Detection regex:** `^\s*friend\s+\w+::\w+;`
 
 ### T2-03: Magic Abort Numbers → Named Constants
@@ -126,8 +128,100 @@ Same semantics, cleaner code. May require updating test annotations.
 - **CRITICAL:** Preserve the exact numeric value. Tests using `#[expected_failure(abort_code = N)]` depend on the numeric value.
 - **Detection regex:** `assert!\([^,]+,\s*\d+\)` or `abort\s+\d+`
 
-### T2-04: EventHandle → #[event] Struct (Move 2.0+)
+---
 
+## Tier 3 — API & Pattern Migrations (Breaking Changes)
+
+Different APIs or architectural patterns. Apply ONE AT A TIME with test verification after each.
+
+**Most Tier 3 rules are breaking changes** that alter the on-chain ABI, storage layout, or event stream format. The skill workflow asks the user to choose `compatible` (skip breaking rules) or `fresh deploy` (allow breaking rules). Rules marked **Breaking: No** are internal refactors safe for compatible upgrades.
+
+### T3-01: Raw Address Params → Object<T> (Move 2.0+)
+
+- **Breaking:** Yes — changes function ABI. All off-chain callers must update.
+- **Confidence:** Medium
+- **Search for:** Entry functions with `addr: address` parameters used to reference objects
+- **Pattern:** `public entry fun transfer(item_addr: address, ...)`
+- **Replace with:** `public entry fun transfer(item: Object<Item>, ...)`
+- **Scope of change:** Function signature, callers, tests, and TypeScript integration all need updating.
+- **Detection regex:** Entry functions with `address` params that call `borrow_global` with that address
+
+### T3-02: Token V1 → Digital Assets (Major Rewrite)
+
+- **Breaking:** Yes — complete API rewrite. Requires new deployment.
+- **Confidence:** Low — requires complete restructuring
+- **Search for:** `aptos_token::token`, `token::create_token_data_id`, `token::create_token_id`
+- **Replace with:** `aptos_token_objects::token`, `aptos_token_objects::collection`
+- **Scope of change:** Full module rewrite. Token creation, transfer, and query APIs are completely different. Recommend writing new module alongside old one.
+- **Detection regex:** `aptos_token::token` or `token::create_token_data_id`
+
+### T3-03: Coin Module → Fungible Asset (Major Rewrite)
+
+- **Breaking:** Yes — complete API rewrite. Requires new deployment.
+- **Confidence:** Low — requires complete restructuring
+- **Search for:** `aptos_framework::coin`, `coin::transfer`, `coin::register`
+- **Replace with:** `aptos_framework::fungible_asset`, `primary_fungible_store`
+- **Scope of change:** Full module rewrite. Coin registration, transfer, and balance APIs are different. All `CoinType` generics become `Object<Metadata>`.
+- **Detection regex:** `aptos_framework::coin` or `coin::register` or `coin::transfer`
+
+### T3-04: Resource Accounts → Named Objects
+
+- **Breaking:** Yes — architectural change. Requires new deployment.
+- **Confidence:** Low — architectural change
+- **Search for:** `create_resource_account`, `create_resource_address`, `SignerCapability`
+- **Replace with:** Named objects via `object::create_named_object(creator, seed)`
+- **Scope of change:** Changes how the contract manages its authority. Resource account signers become object signers.
+- **Detection regex:** `create_resource_account` or `SignerCapability`
+
+### T3-05: SmartTable → BigOrderedMap
+
+- **Breaking:** Yes — different storage layout, incompatible with existing on-chain data.
+- **Confidence:** Medium — API differences exist
+- **Search for:** `aptos_std::smart_table`, `SmartTable<`
+- **Replace with:** `aptos_std::big_ordered_map`, `BigOrderedMap<`
+- **Scope of change:** API differences: `contains(&key)` vs `contains(key)`, `remove(&key)` vs `remove(key)`, different initialization.
+- **Detection regex:** `SmartTable<` or `smart_table::`
+
+### T3-06: State-Variant Structs → Enum Types (Move 2.0+)
+
+- **Breaking:** Yes — different storage layout, incompatible with existing on-chain data.
+- **Confidence:** Low — requires semantic understanding
+- **Search for:** Multiple structs representing states of the same entity, or structs with `type` discriminator fields
+- **Pattern:** `struct OrderPending`, `struct OrderFilled`, `struct OrderCancelled` or `struct Order { status: u8 }`
+- **Replace with:** Single `enum Order { Pending { ... }, Filled { ... }, Cancelled { ... } }`
+- **Scope of change:** All code that creates, reads, or pattern-matches on the entity needs rewriting.
+- **Detection regex:** Manual analysis required — look for groups of structs with shared prefixes or `status`/`type` discriminator fields
+
+### T3-07: Manual Loop Iteration → Stdlib Inline Functions + Lambdas
+
+- **Breaking:** No — internal refactor only. Does not change ABI or storage layout.
+- **Confidence:** Medium
+- **Search for:** `for (i in 0..vector::length(` with index access inside, or any remaining while loops iterating over vectors
+- **Replace with:** Stdlib inline functions with lambdas:
+  - Read-only iteration: `vector::for_each_ref(&v, |elem| { ... })`
+  - Mutable iteration: `vector::for_each_mut(&mut v, |elem| { ... })`
+  - Consuming iteration: `vector::for_each(v, |elem| { ... })`
+  - With index: `vector::enumerate_ref(&v, |i, elem| { ... })`
+  - Transform: `vector::map(v, |elem| { ... })`
+  - Reduce: `vector::fold(v, init, |acc, elem| { ... })`
+  - Filter: `vector::filter(v, |elem| { ... })`
+  - Check: `vector::any(&v, |elem| { ... })` / `vector::all(&v, |elem| { ... })`
+- **Prerequisite:** Apply T1-09 (while → for) first. This rule converts for-loops over vectors into functional-style stdlib calls.
+- **Scope of change:** Restructures loop body into lambda. Loops with `break`/`continue` cannot be converted — keep as `for` loops.
+- **Detection regex:** `for\s*\(\w+\s+in\s+0\.\.vector::length` or remaining `while\s*\(\w+\s*<\s*(vector::length|len)`
+
+### T3-08: Custom Signed Int Workarounds → Native Types (Move 2.3+)
+
+- **Breaking:** Yes — different storage representation, incompatible with existing on-chain data.
+- **Confidence:** Medium
+- **Search for:** Custom modules implementing signed integer arithmetic, or patterns like `struct I64 { value: u64, negative: bool }`
+- **Replace with:** Native `i8`, `i16`, `i32`, `i64`, `i128`, `i256` types
+- **Scope of change:** Remove custom module, update all usages to native types.
+- **Detection regex:** `struct I64` or `struct I128` or `negative: bool` with arithmetic helpers
+
+### T3-09: EventHandle → #[event] Struct (Move 2.0+)
+
+- **Breaking:** Yes — changes event stream format. Indexers must be updated.
 - **Confidence:** Medium — requires updating three locations
 - **Search for:** `EventHandle<` or `emit_event(`
 - **Pattern:**
@@ -148,94 +242,14 @@ Same semantics, cleaner code. May require updating test annotations.
 - **Safety check:** External indexers may depend on the old event format. Note this in the analysis report.
 - **Detection regex:** `EventHandle<` or `emit_event\(`
 
-### T2-05: EventHandle Struct Fields → Remove (Move 2.0+)
+### T3-10: EventHandle Struct Fields → Remove (Move 2.0+)
 
-- **Confidence:** Medium — coupled with T2-04
+- **Breaking:** Yes — coupled with T3-09. Changes event stream format.
+- **Confidence:** Medium — coupled with T3-09
 - **Search for:** Struct fields of type `EventHandle<T>`
 - **Replace with:** Remove the field entirely after converting to `#[event]` pattern
-- **Safety check:** Must complete T2-04 first. Also remove initialization in `init_module`.
+- **Safety check:** Must complete T3-09 first. Also remove initialization in `init_module`.
 - **Detection regex:** `\w+:\s*EventHandle<`
-
----
-
-## Tier 3 — API & Pattern Migrations (Medium-High Risk)
-
-Different APIs or architectural patterns. Apply ONE AT A TIME with test verification after each.
-
-### T3-01: Raw Address Params → Object<T> (Move 2.0+)
-
-- **Confidence:** Medium
-- **Search for:** Entry functions with `addr: address` parameters used to reference objects
-- **Pattern:** `public entry fun transfer(item_addr: address, ...)`
-- **Replace with:** `public entry fun transfer(item: Object<Item>, ...)`
-- **Scope of change:** Function signature, callers, tests, and TypeScript integration all need updating.
-- **Detection regex:** Entry functions with `address` params that call `borrow_global` with that address
-
-### T3-02: Token V1 → Digital Assets (Major Rewrite)
-
-- **Confidence:** Low — requires complete restructuring
-- **Search for:** `aptos_token::token`, `token::create_token_data_id`, `token::create_token_id`
-- **Replace with:** `aptos_token_objects::token`, `aptos_token_objects::collection`
-- **Scope of change:** Full module rewrite. Token creation, transfer, and query APIs are completely different. Recommend writing new module alongside old one.
-- **Detection regex:** `aptos_token::token` or `token::create_token_data_id`
-
-### T3-03: Coin Module → Fungible Asset (Major Rewrite)
-
-- **Confidence:** Low — requires complete restructuring
-- **Search for:** `aptos_framework::coin`, `coin::transfer`, `coin::register`
-- **Replace with:** `aptos_framework::fungible_asset`, `primary_fungible_store`
-- **Scope of change:** Full module rewrite. Coin registration, transfer, and balance APIs are different. All `CoinType` generics become `Object<Metadata>`.
-- **Detection regex:** `aptos_framework::coin` or `coin::register` or `coin::transfer`
-
-### T3-04: Resource Accounts → Named Objects
-
-- **Confidence:** Low — architectural change
-- **Search for:** `create_resource_account`, `create_resource_address`, `SignerCapability`
-- **Replace with:** Named objects via `object::create_named_object(creator, seed)`
-- **Scope of change:** Changes how the contract manages its authority. Resource account signers become object signers.
-- **Detection regex:** `create_resource_account` or `SignerCapability`
-
-### T3-05: SmartTable → BigOrderedMap
-
-- **Confidence:** Medium — API differences exist
-- **Search for:** `aptos_std::smart_table`, `SmartTable<`
-- **Replace with:** `aptos_std::big_ordered_map`, `BigOrderedMap<`
-- **Scope of change:** API differences: `contains(&key)` vs `contains(key)`, `remove(&key)` vs `remove(key)`, different initialization.
-- **Detection regex:** `SmartTable<` or `smart_table::`
-
-### T3-06: State-Variant Structs → Enum Types (Move 2.0+)
-
-- **Confidence:** Low — requires semantic understanding
-- **Search for:** Multiple structs representing states of the same entity, or structs with `type` discriminator fields
-- **Pattern:** `struct OrderPending`, `struct OrderFilled`, `struct OrderCancelled` or `struct Order { status: u8 }`
-- **Replace with:** Single `enum Order { Pending { ... }, Filled { ... }, Cancelled { ... } }`
-- **Scope of change:** All code that creates, reads, or pattern-matches on the entity needs rewriting.
-- **Detection regex:** Manual analysis required — look for groups of structs with shared prefixes or `status`/`type` discriminator fields
-
-### T3-07: Manual Loop Iteration → Stdlib Inline Functions + Lambdas
-
-- **Confidence:** Medium
-- **Search for:** `for (i in 0..vector::length(` with index access inside, or any remaining while loops iterating over vectors
-- **Replace with:** Stdlib inline functions with lambdas:
-  - Read-only iteration: `vector::for_each_ref(&v, |elem| { ... })`
-  - Mutable iteration: `vector::for_each_mut(&mut v, |elem| { ... })`
-  - Consuming iteration: `vector::for_each(v, |elem| { ... })`
-  - With index: `vector::enumerate_ref(&v, |i, elem| { ... })`
-  - Transform: `vector::map(v, |elem| { ... })`
-  - Reduce: `vector::fold(v, init, |acc, elem| { ... })`
-  - Filter: `vector::filter(v, |elem| { ... })`
-  - Check: `vector::any(&v, |elem| { ... })` / `vector::all(&v, |elem| { ... })`
-- **Prerequisite:** Apply T1-09 (while → for) first. This rule converts for-loops over vectors into functional-style stdlib calls.
-- **Scope of change:** Restructures loop body into lambda. Loops with `break`/`continue` cannot be converted — keep as `for` loops.
-- **Detection regex:** `for\s*\(\w+\s+in\s+0\.\.vector::length` or remaining `while\s*\(\w+\s*<\s*(vector::length|len)`
-
-### T3-08: Custom Signed Int Workarounds → Native Types (Move 2.3+)
-
-- **Confidence:** Medium
-- **Search for:** Custom modules implementing signed integer arithmetic, or patterns like `struct I64 { value: u64, negative: bool }`
-- **Replace with:** Native `i8`, `i16`, `i32`, `i64`, `i128`, `i256` types
-- **Scope of change:** Remove custom module, update all usages to native types.
-- **Detection regex:** `struct I64` or `struct I128` or `negative: bool` with arithmetic helpers
 
 ---
 
@@ -246,5 +260,5 @@ When analyzing a contract, scan in this order:
 1. **Grep for Tier 1 patterns** — highest confidence, most common
 2. **Grep for Tier 2 patterns** — second pass, check for friend/event patterns
 3. **Grep for Tier 3 patterns** — final pass, flag for manual review
-4. **Cross-reference findings** — some patterns are coupled (T2-04 + T2-05, T2-01 + T2-02)
+4. **Cross-reference findings** — some patterns are coupled (T2-01 + T2-02, T3-09 + T3-10)
 5. **Build analysis report** — line numbers, rule ID, proposed change, confidence

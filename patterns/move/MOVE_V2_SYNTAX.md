@@ -489,7 +489,7 @@ Remove `inline` and the compiler will fail — the `&mut TicTacToe` reference es
 ```move
 /// Custom inline function that takes a lambda (only define when stdlib doesn't have an equivalent)
 inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
-    for (i in 0..vector::length(v) - 1) {
+    for (i in 0..v.length() - 1) {
         f(&v[i], &v[i + 1]);
     }
 }
@@ -508,18 +508,17 @@ public fun has_adjacent_duplicates(numbers: &vector<u64>): bool {
 
 ```move
 // Single expression (no braces needed)
-vector::for_each_ref(&numbers, |x| debug::print(x));
+numbers.for_each_ref(|x| debug::print(x));
 
 // Multiple statements (use braces)
-vector::for_each_ref(&numbers, |x| {
+numbers.for_each_ref(|x| {
     let doubled = *x * 2;
     debug::print(&doubled);
 });
 
 // With index — use stdlib enumerate_ref
-vector::enumerate_ref(&items, |index, item| {
-    debug::print(&index);
-    debug::print(item);
+items.enumerate_ref(|index, item| {
+    debug::print(&string_utils::format2(&b"{}:{}", index, item));
 });
 ```
 
@@ -532,17 +531,17 @@ The `std::vector` module provides inline functions for common iteration patterns
 ```move
 /// Read-only iteration
 public fun print_all(numbers: &vector<u64>) {
-    vector::for_each_ref(numbers, |x| debug::print(x));
+    numbers.for_each_ref(|x| debug::print(x));
 }
 
 /// Mutable iteration
 public fun double_all_in_place(numbers: &mut vector<u64>) {
-    vector::for_each_mut(numbers, |x| *x = *x * 2);
+    numbers.for_each_mut(|x| *x = *x * 2);
 }
 
 /// Consuming iteration (takes ownership)
 public fun process_all(items: vector<Item>) {
-    vector::for_each(items, |item| consume_item(item));
+    items.for_each(|item| consume_item(item));
 }
 ```
 
@@ -551,17 +550,17 @@ public fun process_all(items: vector<Item>) {
 ```move
 /// Map: transform each element into a new vector
 public fun double_all(numbers: vector<u64>): vector<u64> {
-    vector::map(numbers, |x| x * 2)
+    numbers.map(|x| x * 2)
 }
 
 /// Map by reference (non-consuming)
 public fun get_names(items: &vector<Item>): vector<String> {
-    vector::map_ref(items, |item| item.name)
+    items.map_ref(|item| item.name)
 }
 
 /// Filter: keep elements matching predicate
 public fun keep_even(numbers: vector<u64>): vector<u64> {
-    vector::filter(numbers, |x| *x % 2 == 0)
+    numbers.filter(|x| *x % 2 == 0)
 }
 ```
 
@@ -570,17 +569,17 @@ public fun keep_even(numbers: vector<u64>): vector<u64> {
 ```move
 /// Fold: reduce vector to single value
 public fun sum(numbers: vector<u64>): u64 {
-    vector::fold(numbers, 0, |acc, x| acc + x)
+    numbers.fold(0, |acc, x| acc + x)
 }
 
 /// Any: check if any element matches
 public fun has_large_number(numbers: &vector<u64>): bool {
-    vector::any(numbers, |x| *x > 1000)
+    numbers.any(|x| *x > 1000)
 }
 
 /// All: check if all elements match
 public fun all_positive(numbers: &vector<u64>): bool {
-    vector::all(numbers, |x| *x > 0)
+    numbers.all(|x| *x > 0)
 }
 ```
 
@@ -590,7 +589,7 @@ public fun all_positive(numbers: &vector<u64>): bool {
 /// Zip two vectors together
 public fun dot_product(a: vector<u64>, b: vector<u64>): u64 {
     let result = 0;
-    vector::zip(a, b, |x, y| result += x * y);
+    a.zip(b, |x, y| result += x * y);
     result
 }
 ```
@@ -602,7 +601,7 @@ Only define custom inline helpers when no stdlib function fits. Prefer `for` loo
 ```move
 /// Custom: sliding window pairs (no stdlib equivalent)
 inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
-    for (i in 0..vector::length(v) - 1) {
+    for (i in 0..v.length() - 1) {
         f(&v[i], &v[i + 1]);
     }
 }
@@ -616,7 +615,7 @@ inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
 | **Accept lambda parameters** | `inline fun apply(f: \|u64\| u64, x: u64): u64` — higher-order functions |
 | **Stdlib iteration** | Already provided: `vector::for_each_ref`, `vector::map`, `vector::fold`, etc. |
 
-**Do NOT use inline when:** the function doesn't take lambdas and doesn't return references. Just use a regular `fun`.
+**Do NOT use inline when:** the function doesn't take lambdas and doesn't return references. Just use a regular `fun`. Inlining can increase *or* decrease gas cost depending on call-site count and code size — prefer regular `fun` for performance-neutral helpers.
 
 ### Inline Function Rules
 
@@ -816,13 +815,13 @@ public fun vector_examples() {
 /// Modern iteration using stdlib inline functions
 public fun process_vector(numbers: vector<u64>) {
     // Filter with lambda
-    let evens = vector::filter(numbers, |x| *x % 2 == 0);
+    let evens = numbers.filter(|x| *x % 2 == 0);
 
     // Transform with lambda
-    let doubled = vector::map(evens, |x| x * 2);
+    let doubled = evens.map(|x| x * 2);
 
     // Sum with lambda
-    let total = vector::fold(doubled, 0, |acc, x| acc + x);
+    let total = doubled.fold(0, |acc, x| acc + x);
 
     debug::print(&total);
 }
@@ -852,10 +851,10 @@ public fun update_item(registry: &mut Registry, index: u64, value: u64) {
 }
 
 // V2: Iterate with for loop + index notation
-public fun sum_all(registry: &Registry): u64 {
+fun sum_all(self: &Registry): u64 {
     let sum = 0;
-    for (i in 0..vector::length(&registry.items)) {
-        sum += registry.items[i];
+    for (i in 0..self.items.length()) {
+        sum += self.items[i];
     };
     sum
 }
@@ -875,13 +874,13 @@ public fun update_item_old(registry: &mut Registry, index: u64, value: u64) {
 }
 
 // OLD: Iteration with while loop + borrow
-public fun sum_all_old(registry: &Registry): u64 {
+fun sum_all_old(self: &Registry): u64 {
     let sum = 0;
     let i = 0;
-    let len = vector::length(&registry.items);
+    let len = vector::length(&self.items);
 
     while (i < len) {
-        sum = sum + *vector::borrow(&registry.items, i);  // Verbose
+        sum = sum + *vector::borrow(&self.items, i);  // Verbose
         i = i + 1;
     };
 
@@ -1206,7 +1205,7 @@ module my_addr::marketplace {
     // ============ Inline Helpers ============
     inline fun for_each_item(f: |&Object<Item>|) acquires Marketplace {
         let marketplace = borrow_global<Marketplace>(@my_addr);
-        vector::for_each_ref(&marketplace.items, |item| {
+        marketplace.items.for_each_ref(|item| {
             f(item);
         });
     }
@@ -1254,7 +1253,7 @@ let Config::V2 { admin, .. } = config;
 ### Package Visibility (Move 2.1+)
 
 ```move
-public(package) fun internal_helper() {
+package fun internal_helper() {
     // Visible to other modules in same package, but not to external packages
 }
 ```
@@ -1273,7 +1272,7 @@ public(package) fun internal_helper() {
 - ✅ Use `match` expressions for exhaustive enum handling
 - ✅ Add wildcard `_` arms in `match` for future upgrade compatibility
 - ✅ Use `for` loops for counter-based iteration — prefer `for (i in 0..n)` over manual counter `while` loops
-- ✅ Use stdlib inline functions (`vector::for_each_ref`, `vector::map`, `vector::fold`) for vector iteration
+- ✅ Use stdlib inline functions for vector iteration — receiver style: `v.for_each_ref(|x| ...)`, `v.map(|x| ...)`, `v.fold(init, |acc, x| ...)`
 - ✅ Use lambdas for concise operation definitions
 - ✅ Only define custom inline functions when no stdlib equivalent exists
 - ✅ Use `Object<T>` for type-safe object references
@@ -1297,7 +1296,7 @@ public(package) fun internal_helper() {
 - ❌ Skip event emission for significant activities
 - ❌ Use old syntax (`vector::borrow`) when V2 syntax (`vector[i]`) is available
 - ❌ Use `while` loops with manual counters when `for (i in 0..n)` works
-- ❌ Define custom `for_each`/`map`/`fold` helpers when stdlib versions exist
+- ❌ Define custom `for_each`/`map`/`fold` helpers when stdlib versions exist (use `v.for_each_ref(...)`, `v.map(...)`, etc.)
 - ❌ Skip `init_module` when contracts need initialization
 - ❌ Use custom signed integer libraries when native `i8`-`i256` types are available
 - ❌ Store function values without considering reentrancy implications
