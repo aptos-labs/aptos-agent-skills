@@ -108,8 +108,8 @@ Same semantics, cleaner code. May require updating test annotations.
 - **Confidence:** High
 - **Search for:** `public(friend) fun` or `public(package) fun`
 - **Replace with:** `package fun`
-- **Note:** Both `public(friend)` and `public(package)` convert directly to `package fun`. The `public(package)` form is deprecated — do not use it as an intermediate step.
-- **Safety check:** Verify all calling modules are in the same package (check Move.toml). `package fun` restricts to same-package modules only.
+- **Note:** `public(package) fun` → `package fun` is purely syntactic (shorter form, identical semantics). `public(friend) fun` → `package fun` is a slight semantic widening: all same-package modules gain access, not just the listed friends.
+- **Safety check:** For `public(friend)` conversions, verify that exposing the function to all same-package modules is acceptable (check Move.toml). For `public(package)` conversions, no safety check needed — semantics are identical.
 - **Detection regex:** `public\(friend\)\s+fun` or `public\(package\)\s+fun`
 
 ### T2-02: Friend Declarations → Remove (Move 2.1+)

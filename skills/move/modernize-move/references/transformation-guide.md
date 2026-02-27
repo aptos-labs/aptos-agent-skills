@@ -208,8 +208,9 @@ module my_addr::core {
 3. Verify all callers are in the same package (check Move.toml `[addresses]`)
 
 **Safety checks:**
-- `package fun` makes the function visible to ALL modules in the same package, not just the listed friends. This is usually fine but could expose the function to new callers if the package has many modules.
-- If any callers are in a DIFFERENT package, you cannot use `package fun` — keep `public(friend)` or make fully `public`.
+- `public(package) fun` → `package fun`: purely syntactic shorthand, no semantic change. No safety check needed.
+- `public(friend) fun` → `package fun`: slight semantic widening — `package fun` makes the function visible to ALL modules in the same package, not just the listed friends. This is usually fine but could expose the function to new callers if the package has many modules.
+- If any `public(friend)` callers are in a DIFFERENT package, you cannot use `package fun` — keep `public(friend)` or make fully `public`.
 
 ### T2-02: Friend Declarations → Remove
 
