@@ -403,28 +403,105 @@ fun apply_adjustment(balance: u64, adjustment: i64): u64 {
 
 ---
 
-## Inline Functions & Lambdas
+## For Loops (Move 2.0+)
 
-### Basic Inline Function
+**Always use `for` loops over `while` loops** when iterating with a counter. The `for` loop eliminates counter boilerplate and makes intent clear.
 
-**Inline functions** are inlined at call sites, eliminating function call overhead and enabling lambda parameters.
+### Range-Based For Loop
 
 ```move
-/// Inline function that applies operation to each element
-inline fun for_each<T>(v: &vector<T>, f: |&T|) {
-    let i = 0;
-    let len = vector::length(v);
-    while (i < len) {
-        f(vector::borrow(v, i));
-        i = i + 1;
+/// Sum numbers from 0 to n-1
+fun sum(n: u64): u64 {
+    let sum = 0;
+    for (i in 0..n) {
+        sum += i;
+    };
+    sum
+}
+```
+
+- `for (i in 0..n)` — iterates `i` from `0` to `n-1` (upper bound is exclusive)
+- `for (i in start..end)` — iterates from `start` to `end-1`
+- Bounds are evaluated **once** at loop entry
+- `break` and `continue` are supported
+
+### Iterating Over Vectors
+
+```move
+/// Iterate over vector with for loop + index notation
+fun sum_all(items: &vector<u64>): u64 {
+    let total = 0;
+    for (i in 0..items.length()) {
+        total += items[i];
+    };
+    total
+}
+```
+
+### When to Use Each Loop Style
+
+| Style | When to Use |
+|-------|-------------|
+| `for (i in 0..n)` | **Default choice.** Counter-based iteration over ranges or vector indices |
+| `vector::for_each_ref` / `vector::fold` / etc. | Functional-style iteration with lambdas (see Stdlib Inline Functions below) |
+| `while` | When iteration count isn't known upfront: dynamic termination conditions, step size != 1, searching/draining |
+| `loop` | Truly infinite loops (e.g., event loops). **Avoid** when a `while` with an exit condition would be clearer |
+
+---
+
+## Inline Functions & Lambdas
+
+### Why Inline Functions Exist
+
+`inline fun` means the compiler pastes the function body into every call site. This enables two things regular functions cannot do:
+
+1. **Accept lambda parameters** — only inline functions can take lambdas like `|x| x + 1`
+2. **Return references from borrowed state** — a regular function can't return `&T` or `&mut T` from `borrow_global` because the reference would escape the function scope. An inline function can, because after inlining the borrow stays within the caller's scope.
+
+### Inline for Reference Returns
+
+This is the primary code-reuse pattern for inline functions. A regular `fun` cannot return a reference to data borrowed from global storage — the compiler rejects it. `inline fun` solves this:
+
+```move
+/// Gets the game mutably — MUST be inline because it returns &mut from borrow_global_mut
+inline fun get_game_mut(game_address: address, game_name: String): &mut TicTacToe {
+    let store = get_store_mut(game_address);
+    assert!(store.games.contains_key(&game_name), EGAME_NOT_FOUND);
+    store.games.borrow_mut(&game_name)
+}
+
+/// Now callers can reuse the lookup + validation logic
+public entry fun make_move(player: &signer, game_address: address, game_name: String, row: u64, col: u64) {
+    let game = get_game_mut(game_address, game_name);
+    game.board[row][col] = get_player_mark(player);
+}
+
+public entry fun reset_game(admin: &signer, game_address: address, game_name: String) {
+    let game = get_game_mut(game_address, game_name);
+    game.board = empty_board();
+}
+```
+
+Remove `inline` and the compiler will fail — the `&mut TicTacToe` reference escapes the function scope.
+
+### Inline for Lambda Parameters
+
+```move
+/// Custom inline function that takes a lambda (only define when stdlib doesn't have an equivalent)
+inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
+    let len = v.length() - 1;
+    for (i in 0..len) {
+        f(&v[i], &v[i + 1]);
     }
 }
 
 /// Usage with lambda
-public fun print_all(numbers: &vector<u64>) {
-    for_each(numbers, |x| {
-        debug::print(x);
+public fun has_adjacent_duplicates(numbers: &vector<u64>): bool {
+    let found = false;
+    for_each_pair(numbers, |a, b| {
+        if (*a == *b) found = true;
     });
+    found
 }
 ```
 
@@ -432,152 +509,123 @@ public fun print_all(numbers: &vector<u64>) {
 
 ```move
 // Single expression (no braces needed)
-for_each(&numbers, |x| debug::print(x));
+numbers.for_each_ref(|x| debug::print(x));
 
 // Multiple statements (use braces)
-for_each(&numbers, |x| {
+numbers.for_each_ref(|x| {
     let doubled = *x * 2;
     debug::print(&doubled);
 });
 
-// Multiple parameters
-inline fun for_each_indexed<T>(v: &vector<T>, f: |u64, &T|) {
-    let i = 0;
-    while (i < vector::length(v)) {
-        f(i, vector::borrow(v, i));
-        i = i + 1;
-    }
-}
-
-// Usage
-for_each_indexed(&items, |index, item| {
-    debug::print(&index);
-    debug::print(item);
+// With index — use stdlib enumerate_ref
+items.enumerate_ref(|index, item| {
+    debug::print(&string_utils::format2(&b"{}:{}", index, item));
 });
 ```
 
-### Common Inline Patterns
+### Stdlib Inline Functions (Prefer These)
 
-#### Map Operation
+The `std::vector` module provides inline functions for common iteration patterns. **Always use these instead of defining custom helpers.**
+
+#### Iteration
 
 ```move
-/// Map function - transform each element
-inline fun map<T, U>(v: &vector<T>, f: |&T| U): vector<U> {
-    let result = vector::empty<U>();
-    let i = 0;
-    while (i < vector::length(v)) {
-        vector::push_back(&mut result, f(vector::borrow(v, i)));
-        i = i + 1;
-    };
-    result
+/// Read-only iteration
+public fun print_all(numbers: &vector<u64>) {
+    numbers.for_each_ref(|x| debug::print(x));
 }
 
-/// Usage: Double all numbers
-public fun double_all(numbers: &vector<u64>): vector<u64> {
-    map(numbers, |x| *x * 2)
+/// Mutable iteration
+public fun double_all_in_place(numbers: &mut vector<u64>) {
+    numbers.for_each_mut(|x| *x = *x * 2);
+}
+
+/// Consuming iteration (takes ownership)
+public fun process_all(items: vector<Item>) {
+    items.for_each(|item| consume_item(item));
 }
 ```
 
-#### Filter Operation
+#### Transform & Filter
 
 ```move
-/// Filter function - keep elements matching predicate
-inline fun filter<T: copy + drop>(v: &vector<T>, pred: |&T| bool): vector<T> {
-    let result = vector::empty<T>();
-    let i = 0;
-    while (i < vector::length(v)) {
-        let elem = vector::borrow(v, i);
-        if (pred(elem)) {
-            vector::push_back(&mut result, *elem);
-        };
-        i = i + 1;
-    };
-    result
+/// Map: transform each element into a new vector
+public fun double_all(numbers: vector<u64>): vector<u64> {
+    numbers.map(|x| x * 2)
 }
 
-/// Usage: Keep only even numbers
-public fun keep_even(numbers: &vector<u64>): vector<u64> {
-    filter(numbers, |x| *x % 2 == 0)
+/// Map by reference (non-consuming)
+public fun get_names(items: &vector<Item>): vector<String> {
+    items.map_ref(|item| item.name)
+}
+
+/// Filter: keep elements matching predicate
+public fun keep_even(numbers: vector<u64>): vector<u64> {
+    numbers.filter(|x| *x % 2 == 0)
 }
 ```
 
-#### Fold/Reduce Operation
+#### Reduce & Search
 
 ```move
-/// Fold function - reduce vector to single value
-inline fun fold<T, Acc>(v: &vector<T>, init: Acc, f: |Acc, &T| Acc): Acc {
-    let acc = init;
-    let i = 0;
-    while (i < vector::length(v)) {
-        acc = f(acc, vector::borrow(v, i));
-        i = i + 1;
-    };
-    acc
+/// Fold: reduce vector to single value
+public fun sum(numbers: vector<u64>): u64 {
+    numbers.fold(0, |acc, x| acc + x)
 }
 
-/// Usage: Sum all numbers
-public fun sum(numbers: &vector<u64>): u64 {
-    fold(numbers, 0, |acc, x| acc + *x)
-}
-```
-
-#### Any/All Operations
-
-```move
-/// Check if any element matches predicate
-inline fun any<T>(v: &vector<T>, pred: |&T| bool): bool {
-    let i = 0;
-    while (i < vector::length(v)) {
-        if (pred(vector::borrow(v, i))) {
-            return true
-        };
-        i = i + 1;
-    };
-    false
-}
-
-/// Check if all elements match predicate
-inline fun all<T>(v: &vector<T>, pred: |&T| bool): bool {
-    let i = 0;
-    while (i < vector::length(v)) {
-        if (!pred(vector::borrow(v, i))) {
-            return false
-        };
-        i = i + 1;
-    };
-    true
-}
-
-/// Usage
+/// Any: check if any element matches
 public fun has_large_number(numbers: &vector<u64>): bool {
-    any(numbers, |x| *x > 1000)
+    numbers.any(|x| *x > 1000)
 }
 
+/// All: check if all elements match
 public fun all_positive(numbers: &vector<u64>): bool {
-    all(numbers, |x| *x > 0)
+    numbers.all(|x| *x > 0)
 }
 ```
 
-### Inline Functions with Mutable References
+#### Zip Operations
 
 ```move
-/// Modify each element in place
-inline fun for_each_mut<T>(v: &mut vector<T>, f: |&mut T|) {
-    let i = 0;
-    let len = vector::length(v);
-    while (i < len) {
-        f(vector::borrow_mut(v, i));
-        i = i + 1;
+/// Zip two vectors together
+public fun dot_product(a: vector<u64>, b: vector<u64>): u64 {
+    let result = 0;
+    a.zip(b, |x, y| result += x * y);
+    result
+}
+```
+
+### Custom Inline Functions
+
+Only define custom inline helpers when no stdlib function fits. Prefer `for` loops for counter-based iteration inside custom helpers.
+
+```move
+/// Custom: sliding window pairs (no stdlib equivalent)
+inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
+    let len = v.length() - 1;
+    for (i in 0..len) {
+        f(&v[i], &v[i + 1]);
     }
 }
-
-/// Usage: Double all numbers in place
-public fun double_all_mut(numbers: &mut vector<u64>) {
-    for_each_mut(numbers, |x| {
-        *x = *x * 2;
-    });
-}
 ```
+
+### When to Use Inline Functions
+
+| Use Case | Example |
+|----------|---------|
+| **Return references from borrowed state** | `inline fun get_game_mut(...): &mut TicTacToe` — reuse lookup/validation logic that returns `&T` or `&mut T` from `borrow_global` |
+| **Accept lambda parameters** | `inline fun apply(f: \|u64\| u64, x: u64): u64` — higher-order functions |
+| **Stdlib iteration** | Already provided: `vector::for_each_ref`, `vector::map`, `vector::fold`, etc. |
+
+**Do NOT use inline when:** the function doesn't take lambdas and doesn't return references. Just use a regular `fun`. Inlining can increase *or* decrease gas cost depending on call-site count and code size — prefer regular `fun` for performance-neutral helpers.
+
+### Inline Function Rules
+
+1. **Use stdlib first** — `vector::for_each_ref`, `vector::map`, `vector::fold`, etc. cover most iteration patterns
+2. **Use `inline` for reference-returning helpers** — the main code-reuse pattern for `inline fun`
+3. **Prefer `for` loops for counter-based iteration** — use `while` only when the termination condition is dynamic
+4. **Lambdas cannot use `break`, `continue`, or `return`** — if you need these, use a `for` loop directly
+5. **Lambdas capture by value** — cannot capture references; captured mutable variables can be modified
 
 ---
 
@@ -766,16 +814,16 @@ public fun vector_examples() {
 ### Vector with Lambdas
 
 ```move
-/// Modern iteration patterns
-public fun process_vector(numbers: &mut vector<u64>) {
+/// Modern iteration using stdlib inline functions
+public fun process_vector(numbers: vector<u64>) {
     // Filter with lambda
-    let evens = filter(numbers, |x| *x % 2 == 0);
+    let evens = numbers.filter(|x| *x % 2 == 0);
 
     // Transform with lambda
-    let doubled = map(&evens, |x| *x * 2);
+    let doubled = evens.map(|x| x * 2);
 
     // Sum with lambda
-    let total = fold(&doubled, 0, |acc, x| acc + *x);
+    let total = doubled.fold(0, |acc, x| acc + x);
 
     debug::print(&total);
 }
@@ -804,17 +852,12 @@ public fun update_item(registry: &mut Registry, index: u64, value: u64) {
     *&mut registry.items[index] = value;  // Clean mutation
 }
 
-// V2: Iterate with index notation
-public fun sum_all(registry: &Registry): u64 {
+// V2: Iterate with for loop + index notation
+fun sum_all(self: &Registry): u64 {
     let sum = 0;
-    let i = 0;
-    let len = vector::length(&registry.items);
-
-    while (i < len) {
-        sum = sum + registry.items[i];  // Much cleaner!
-        i = i + 1;
+    for (i in 0..self.items.length()) {
+        sum += self.items[i];
     };
-
     sum
 }
 ```
@@ -832,14 +875,14 @@ public fun update_item_old(registry: &mut Registry, index: u64, value: u64) {
     *vector::borrow_mut(&mut registry.items, index) = value;
 }
 
-// OLD: Iteration with borrow
-public fun sum_all_old(registry: &Registry): u64 {
+// OLD: Iteration with while loop + borrow
+fun sum_all_old(self: &Registry): u64 {
     let sum = 0;
     let i = 0;
-    let len = vector::length(&registry.items);
+    let len = vector::length(&self.items);
 
     while (i < len) {
-        sum = sum + *vector::borrow(&registry.items, i);  // Verbose
+        sum = sum + *vector::borrow(&self.items, i);  // Verbose
         i = i + 1;
     };
 
@@ -1164,11 +1207,9 @@ module my_addr::marketplace {
     // ============ Inline Helpers ============
     inline fun for_each_item(f: |&Object<Item>|) acquires Marketplace {
         let marketplace = borrow_global<Marketplace>(@my_addr);
-        let i = 0;
-        while (i < vector::length(&marketplace.items)) {
-            f(vector::borrow(&marketplace.items, i));
-            i = i + 1;
-        }
+        &marketplace.items.for_each_ref(|item| {
+            f(item);
+        });
     }
 
     // ============ Test Module ============
@@ -1195,13 +1236,16 @@ x %= modulus;
 
 ### Loop Labels (Move 2.1+)
 
+Labels can only be applied to `while` and `loop` — not `for`.
+
 ```move
-'outer: loop {
-    let i = 0;
-    while (i < len) {
-        if (found) break 'outer;
-        i += 1;
+'outer: while (row < rows) {
+    let col = 0;
+    while (col < cols) {
+        if (grid[row][col] == target) break 'outer;
+        col += 1;
     };
+    row += 1;
 };
 ```
 
@@ -1216,7 +1260,7 @@ let Config::V2 { admin, .. } = config;
 ### Package Visibility (Move 2.1+)
 
 ```move
-public(package) fun internal_helper() {
+package fun internal_helper() {
     // Visible to other modules in same package, but not to external packages
 }
 ```
@@ -1234,8 +1278,10 @@ public(package) fun internal_helper() {
 - ✅ Use `#[module_lock]` when function value callbacks must not re-enter your module
 - ✅ Use `match` expressions for exhaustive enum handling
 - ✅ Add wildcard `_` arms in `match` for future upgrade compatibility
-- ✅ Use inline functions for iteration logic within a module
+- ✅ Use `for` loops for counter-based iteration — prefer `for (i in 0..n)` over manual counter `while` loops
+- ✅ Use stdlib inline functions for vector iteration — receiver style: `v.for_each_ref(|x| ...)`, `v.map(|x| ...)`, `v.fold(init, |acc, x| ...)`
 - ✅ Use lambdas for concise operation definitions
+- ✅ Only define custom inline functions when no stdlib equivalent exists
 - ✅ Use `Object<T>` for type-safe object references
 - ✅ Define clear error constants with descriptive names
 - ✅ Group related functionality in modules
@@ -1256,6 +1302,8 @@ public(package) fun internal_helper() {
 - ❌ Create helper functions that just return named addresses
 - ❌ Skip event emission for significant activities
 - ❌ Use old syntax (`vector::borrow`) when V2 syntax (`vector[i]`) is available
+- ❌ Use `while` loops with manual counters when `for (i in 0..n)` works
+- ❌ Define custom `for_each`/`map`/`fold` helpers when stdlib versions exist (use `v.for_each_ref(...)`, `v.map(...)`, etc.)
 - ❌ Skip `init_module` when contracts need initialization
 - ❌ Use custom signed integer libraries when native `i8`-`i256` types are available
 - ❌ Store function values without considering reentrancy implications
@@ -1285,5 +1333,4 @@ public(package) fun internal_helper() {
 
 ---
 
-**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace function values, enums,
-inline functions, lambdas, and type-safe objects.
+**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace `for` loops for counter-based iteration, stdlib inline functions, lambdas, function values, enums, and type-safe objects. Use `while` when the termination condition is dynamic.
