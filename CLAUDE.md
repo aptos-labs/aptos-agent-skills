@@ -4,13 +4,14 @@ Specialized skills for AI assistants to build secure, modern Aptos dApps.
 
 ## Project Scaffolding
 
-Use `create-aptos-dapp` with the boilerplate template to start new projects:
+Use `create-aptos-dapp` with the boilerplate template to start new projects. **Run from the parent directory** — `degit`
+requires an empty target folder:
 
 ```bash
-# Fullstack dApp (frontend + contracts)
+# Fullstack dApp (frontend + contracts) — run from PARENT directory
 npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp
 
-# Contract-only
+# Contract-only — run from PARENT directory
 npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template my-contract
 ```
 
