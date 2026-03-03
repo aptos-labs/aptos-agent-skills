@@ -64,8 +64,7 @@ metadata:
 
 ## Quick Workflow
 
-1. **Search examples** → Use `search-aptos-examples` skill to find similar patterns in aptos-core
-2. **Create module structure** → Define structs, events, constants, init_module
+1. **Create module structure** → Define structs, events, constants, init_module
 3. **Implement object creation** → Use proper constructor pattern with all refs generated upfront
 4. **Add access control** → Verify ownership and validate all inputs
 5. **Security check** → Use `security-audit` skill before deployment
@@ -309,6 +308,6 @@ module my_addr::my_module {
 
 **Related Skills:**
 
-- `search-aptos-examples` - Find similar examples (use BEFORE writing)
+- `search-aptos-examples` - Find similar examples in aptos-core (optional)
 - `generate-tests` - Write tests for contracts (use AFTER writing contracts)
 - `security-audit` - Audit contracts before deployment

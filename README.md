@@ -57,7 +57,7 @@ See [INSTALL.md](INSTALL.md) for more installation options.
 
 3. Start developing - skills activate automatically:
    - "Create a new dApp" → project scaffolding guidance in CLAUDE.md
-   - "Write an NFT contract" → `/search-aptos-examples` + `/write-contracts` activate
+   - "Write an NFT contract" → `/write-contracts` activates
    - After writing code → `/generate-tests` auto-activates
    - "Deploy to testnet" → `/deploy-contracts` activates
    - "Check security" → `/security-audit` activates
@@ -110,15 +110,7 @@ aptos-agent-skills/
 
 ## Core Principles
 
-### 1. Always Search Examples First
-
-```
-"I want to build an NFT marketplace"
-→ /search-aptos-examples finds relevant patterns
-→ Adapts from official aptos-core examples
-```
-
-### 2. Digital Asset Standard for NFTs
+### 1. Digital Asset Standard for NFTs
 
 ```move
 // Use Aptos Digital Asset standard
@@ -133,7 +125,7 @@ public entry fun list_nft(
 )
 ```
 
-### 3. Object-Centric Development
+### 2. Object-Centric Development
 
 ```move
 // MODERN (V2): Type-safe objects
@@ -144,7 +136,7 @@ public entry fun transfer_item(
 )
 ```
 
-### 4. Frontend Integration
+### 3. Frontend Integration
 
 ```typescript
 // Entry function (write)
@@ -185,11 +177,10 @@ const [count] = await aptos.view({
 ### Workflow: Build Move Contracts
 
 1. Scaffold project with `create-aptos-dapp` (see CLAUDE.md)
-2. `/search-aptos-examples` → Find reference implementations
-3. `/write-contracts` → Write Move modules
-4. `/generate-tests` → Create Move tests
-5. `/security-audit` → Audit before deployment
-6. `/deploy-contracts` → Deploy to network
+2. `/write-contracts` → Write Move modules
+3. `/generate-tests` → Create Move tests
+4. `/security-audit` → Audit before deployment
+5. `/deploy-contracts` → Deploy to network
 
 ## Formatting
 
