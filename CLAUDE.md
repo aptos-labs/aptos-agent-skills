@@ -161,28 +161,6 @@ total loss of funds.
 - ✅ Tell users to check `~/.aptos/config.yaml` themselves rather than reading it for them
 - ✅ Use `--profile <name>` to reference keys indirectly through the Aptos CLI
 
-## Common Mistakes
-
-| Mistake                                  | Why It's Wrong                 | Correct Pattern                                                 |
-| ---------------------------------------- | ------------------------------ | --------------------------------------------------------------- |
-| `public fun create(): ConstructorRef`    | Caller can destroy object      | Return `Object<T>` instead                                      |
-| `public fun update(item: &mut T)`        | Allows mem::swap attacks       | Use `acquires`, borrow internally                               |
-| `entry fun transfer(item_addr: address)` | Legacy pattern, no type safety | Use `Object<Item>`                                              |
-| No signer verification                   | Anyone can call function       | `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)` |
-| No input validation                      | Overflow, zero amounts, etc.   | `assert!(amount > 0 && amount <= MAX, E_INVALID)`               |
-| Skipping tests                           | Bugs in production             | Write tests with 100% coverage                                  |
-| Using resource accounts                  | Deprecated in V2               | Use named objects instead                                       |
-
-## Troubleshooting Quick Reference
-
-| Error                     | Cause                                      | Fix                                                            |
-| ------------------------- | ------------------------------------------ | -------------------------------------------------------------- |
-| `LINKER_ERROR`            | Missing dependency in Move.toml            | Add required package (AptosFramework, AptosStdlib, AptosToken) |
-| `ABORTED at 0x1`          | Assertion failed, no error code            | Use named error constants: `const E_CODE: u64 = N;`            |
-| `Type mismatch`           | Using `address` where `Object<T>` expected | Use `Object<T>` in function signatures                         |
-| `Resource already exists` | `move_to` called twice                     | Check `exists<T>(addr)` first                                  |
-| `object does not exist`   | Wrong seed or creator address              | Verify seed/creator for named objects, check init_module ran   |
-
 ## Integration
 
 **Claude Code:** This file is automatically loaded when detected in the repository.
