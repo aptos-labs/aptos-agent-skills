@@ -70,7 +70,7 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 
 - **After writing contracts** → suggest `/generate-tests`
 - **Before deployment** → suggest `/security-audit`
-- **Before writing new contracts** → suggest `/search-aptos-examples` to find prior art
+- **Before writing new contracts** → suggest `/search-aptos-examples` to find reference implementations
 - **After audit finds issues** → fix, then re-run `/security-audit`
 
 ## Workflows
@@ -78,11 +78,10 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 ### Build a dApp
 
 1. Scaffold project (see Project Scaffolding above)
-2. `/search-aptos-examples` → find reference implementations
-3. `/write-contracts` → write Move modules
-4. `/generate-tests` → create test suite, verify 100% coverage
-5. `/security-audit` → audit before deployment
-6. `/deploy-contracts` → deploy to testnet, then mainnet
+2. `/write-contracts` → write Move modules
+3. `/generate-tests` → create test suite, verify 100% coverage
+4. `/security-audit` → audit before deployment
+5. `/deploy-contracts` → deploy to testnet, then mainnet
 
 ### Frontend Integration
 
