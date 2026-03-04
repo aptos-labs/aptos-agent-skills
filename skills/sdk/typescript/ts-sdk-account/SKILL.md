@@ -3,7 +3,8 @@ name: ts-sdk-account
 description:
   "How to create and use Account (signer) in @aptos-labs/ts-sdk. Covers Account.generate(), fromPrivateKey(),
   fromDerivationPath(), Ed25519 vs SingleKey vs MultiKey vs Keyless, serialization (fromHex/toHex). Triggers on:
-  'Account', 'create account', 'generate account', 'fromPrivateKey', 'Ed25519', 'signer', 'mnemonic'."
+  'Account.generate', 'Account.fromPrivateKey', 'Ed25519PrivateKey', 'SDK account', 'mnemonic',
+  'SingleKeyAccount', 'KeylessAccount'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "account", "signer", "private-key", "ed25519", "keyless"]
@@ -208,5 +209,5 @@ const accounts = await aptos.deriveOwnedAccountsFromSigner({
 ## References
 
 - SDK: `src/account/Account.ts`, `src/account/Ed25519Account.ts`, `src/account/AccountUtils.ts`, `src/api/account.ts`
-- Pattern: [TYPESCRIPT_SDK.md](../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-client](./ts-sdk-client), [ts-sdk-transactions](./ts-sdk-transactions)
+- Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
+- Related: [ts-sdk-client](../ts-sdk-client), [ts-sdk-transactions](../ts-sdk-transactions), [use-ts-sdk](../use-ts-sdk)

@@ -2,8 +2,8 @@
 name: ts-sdk-view-and-query
 description:
   "How to read on-chain data in @aptos-labs/ts-sdk: view(), getBalance(), getAccountInfo(), getAccountResources(),
-  getAccountModules(), getResource(). Triggers on: 'view', 'getBalance', 'getAccountInfo', 'getAccountResources',
-  'read contract', 'query'."
+  getAccountModules(), getResource(). Triggers on: 'aptos.view', 'getBalance', 'getAccountInfo',
+  'getAccountResources', 'SDK query', 'view function TypeScript'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "view", "balance", "account", "resources", "query"]
@@ -180,5 +180,5 @@ const { resources, cursor } = await aptos.getAccountResourcesPage({
 ## References
 
 - SDK: `src/internal/view.ts`, `src/api/account.ts`, balance/getBalance in internal
-- Pattern: [TYPESCRIPT_SDK.md](../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-client](./ts-sdk-client), [ts-sdk-types](./ts-sdk-types)
+- Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
+- Related: [ts-sdk-client](../ts-sdk-client), [ts-sdk-types](../ts-sdk-types), [use-ts-sdk](../use-ts-sdk)

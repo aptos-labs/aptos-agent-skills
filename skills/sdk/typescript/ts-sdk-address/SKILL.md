@@ -3,7 +3,8 @@ name: ts-sdk-address
 description:
   "How to create and use AccountAddress in @aptos-labs/ts-sdk. Covers address format (AIP-40), from/fromString/fromStrict,
   special addresses, LONG vs SHORT form, and derived addresses (object, resource, token, user-derived). Triggers on:
-  'address', 'AccountAddress', '0x1', 'hex address', 'object address', 'resource address', 'createObjectAddress'."
+  'AccountAddress', 'AccountAddress.from', 'AIP-40', 'derived address', 'createObjectAddress',
+  'createResourceAddress', 'createTokenAddress'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "address", "account-address", "aip-40"]
@@ -198,4 +199,4 @@ a.equals(b); // true
 
 - SDK: `src/core/accountAddress.ts`, `src/core/account/utils/address.ts`
 - AIP-40: https://github.com/aptos-foundation/AIPs/blob/main/aips/aip-40.md
-- Pattern: [TYPESCRIPT_SDK.md](../../../patterns/fullstack/TYPESCRIPT_SDK.md)
+- Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)

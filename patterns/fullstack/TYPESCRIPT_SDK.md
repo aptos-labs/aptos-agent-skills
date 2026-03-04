@@ -4,7 +4,7 @@
 
 **Package:** `@aptos-labs/ts-sdk` (NOT the deprecated `aptos` package)
 
-**Granular skills (by topic):** [ts-sdk-address](../../skills/sdk/ts-sdk-address/SKILL.md) · [ts-sdk-account](../../skills/sdk/ts-sdk-account/SKILL.md) · [ts-sdk-client](../../skills/sdk/ts-sdk-client/SKILL.md) · [ts-sdk-transactions](../../skills/sdk/ts-sdk-transactions/SKILL.md) · [ts-sdk-view-and-query](../../skills/sdk/ts-sdk-view-and-query/SKILL.md) · [ts-sdk-types](../../skills/sdk/ts-sdk-types/SKILL.md)
+**Skills:** [use-ts-sdk](../../skills/sdk/typescript/use-ts-sdk/SKILL.md) (orchestrator) · [ts-sdk-client](../../skills/sdk/typescript/ts-sdk-client/SKILL.md) · [ts-sdk-account](../../skills/sdk/typescript/ts-sdk-account/SKILL.md) · [ts-sdk-address](../../skills/sdk/typescript/ts-sdk-address/SKILL.md) · [ts-sdk-transactions](../../skills/sdk/typescript/ts-sdk-transactions/SKILL.md) · [ts-sdk-view-and-query](../../skills/sdk/typescript/ts-sdk-view-and-query/SKILL.md) · [ts-sdk-types](../../skills/sdk/typescript/ts-sdk-types/SKILL.md) · [ts-sdk-wallet-adapter](../../skills/sdk/typescript/ts-sdk-wallet-adapter/SKILL.md)
 
 ---
 

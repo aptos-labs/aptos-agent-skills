@@ -3,7 +3,7 @@ name: ts-sdk-client
 description:
   "How to create and configure the Aptos client (Aptos, AptosConfig) in @aptos-labs/ts-sdk. Covers Network,
   fullnode/indexer/faucet URLs, singleton pattern, and Bun compatibility. Triggers on: 'Aptos client', 'AptosConfig',
-  'Network', 'testnet', 'mainnet', 'fullnode', 'singleton'."
+  'SDK client', 'client setup', 'new Aptos(', 'Network.TESTNET', 'Network.MAINNET'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "client", "aptos", "config", "network"]
@@ -137,5 +137,5 @@ After construction, use the same `aptos` instance for:
 ## References
 
 - SDK: `src/api/aptos.ts`, `src/api/aptosConfig.ts`
-- Pattern: [TYPESCRIPT_SDK.md](../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-account](./ts-sdk-account), [ts-sdk-transactions](./ts-sdk-transactions), [use-typescript-sdk](./use-typescript-sdk)
+- Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
+- Related: [ts-sdk-account](../ts-sdk-account), [ts-sdk-transactions](../ts-sdk-transactions), [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter), [use-ts-sdk](../use-ts-sdk)

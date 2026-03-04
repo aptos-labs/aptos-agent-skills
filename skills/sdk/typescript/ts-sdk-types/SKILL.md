@@ -2,8 +2,8 @@
 name: ts-sdk-types
 description:
   "Move to TypeScript type mapping in @aptos-labs/ts-sdk: u64/u128/u256 as bigint, address as string,
-  TypeTag, functionArguments and typeArguments. Triggers on: 'type arguments', 'typeArguments', 'bigint',
-  'u128', 'address string', 'Move type'."
+  TypeTag, functionArguments and typeArguments. Triggers on: 'typeArguments', 'functionArguments',
+  'Move to TypeScript', 'type mapping', 'TypeTag', 'bigint u128'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "types", "typetag", "bigint", "move"]
@@ -145,5 +145,5 @@ functionArguments: [
 ## References
 
 - SDK: `src/transactions/typeTag/`, `src/transactions/instances/transactionArgument.ts`, view and build APIs
-- Pattern: [TYPESCRIPT_SDK.md](../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-view-and-query](./ts-sdk-view-and-query), [ts-sdk-transactions](./ts-sdk-transactions)
+- Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
+- Related: [ts-sdk-view-and-query](../ts-sdk-view-and-query), [ts-sdk-transactions](../ts-sdk-transactions), [use-ts-sdk](../use-ts-sdk)

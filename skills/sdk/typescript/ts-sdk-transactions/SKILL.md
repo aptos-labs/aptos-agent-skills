@@ -2,8 +2,9 @@
 name: ts-sdk-transactions
 description:
   "How to build, sign, submit, and simulate transactions in @aptos-labs/ts-sdk. Covers build.simple(), signAndSubmitTransaction(),
-  waitForTransaction(), simulate, sponsored (fee payer), and multi-agent. Triggers on: 'transaction', 'build.simple',
-  'signAndSubmitTransaction', 'waitForTransaction', 'simulate', 'sponsored', 'multi-agent'."
+  waitForTransaction(), simulate, sponsored (fee payer), and multi-agent. Triggers on: 'build.simple',
+  'signAndSubmitTransaction', 'transaction.build', 'waitForTransaction', 'signAsFeePayer',
+  'SDK transaction', 'sponsored transaction', 'multi-agent transaction'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "transaction", "submit", "simulate", "sponsored", "multi-agent"]
@@ -223,5 +224,5 @@ console.log("Gas profile:", gasProfile);
 ## References
 
 - SDK: `src/api/transaction.ts`, `src/internal/transactionSubmission.ts`, `src/internal/transaction.ts`
-- Pattern: [TYPESCRIPT_SDK.md](../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-account](./ts-sdk-account), [ts-sdk-client](./ts-sdk-client), [use-typescript-sdk](./use-typescript-sdk)
+- Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
+- Related: [ts-sdk-account](../ts-sdk-account), [ts-sdk-client](../ts-sdk-client), [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter), [use-ts-sdk](../use-ts-sdk)
