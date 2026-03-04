@@ -74,7 +74,7 @@ await aptos.transaction.build.simple({
 
 ## typeArguments
 
-For generic Move functions, pass full type strings (module::module::Type):
+For generic Move functions, pass full type strings (`address::module::StructName`):
 
 ```typescript
 // Move: balance<CoinType>(addr): u64
@@ -146,4 +146,4 @@ functionArguments: [
 
 - SDK: `src/transactions/typeTag/`, `src/transactions/instances/transactionArgument.ts`, view and build APIs
 - Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-view-and-query](../ts-sdk-view-and-query), [ts-sdk-transactions](../ts-sdk-transactions), [use-ts-sdk](../use-ts-sdk)
+- Related: [ts-sdk-view-and-query](../ts-sdk-view-and-query/SKILL.md), [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md), [use-ts-sdk](../use-ts-sdk/SKILL.md)

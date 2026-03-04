@@ -210,4 +210,4 @@ const accounts = await aptos.deriveOwnedAccountsFromSigner({
 
 - SDK: `src/account/Account.ts`, `src/account/Ed25519Account.ts`, `src/account/AccountUtils.ts`, `src/api/account.ts`
 - Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-client](../ts-sdk-client), [ts-sdk-transactions](../ts-sdk-transactions), [use-ts-sdk](../use-ts-sdk)
+- Related: [ts-sdk-client](../ts-sdk-client/SKILL.md), [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md), [use-ts-sdk](../use-ts-sdk/SKILL.md)

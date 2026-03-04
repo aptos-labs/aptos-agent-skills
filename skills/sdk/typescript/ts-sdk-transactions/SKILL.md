@@ -225,4 +225,4 @@ console.log("Gas profile:", gasProfile);
 
 - SDK: `src/api/transaction.ts`, `src/internal/transactionSubmission.ts`, `src/internal/transaction.ts`
 - Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-account](../ts-sdk-account), [ts-sdk-client](../ts-sdk-client), [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter), [use-ts-sdk](../use-ts-sdk)
+- Related: [ts-sdk-account](../ts-sdk-account/SKILL.md), [ts-sdk-client](../ts-sdk-client/SKILL.md), [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter/SKILL.md), [use-ts-sdk](../use-ts-sdk/SKILL.md)

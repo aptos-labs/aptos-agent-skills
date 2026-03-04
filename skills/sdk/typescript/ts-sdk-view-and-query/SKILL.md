@@ -38,7 +38,9 @@ const balance = await aptos.getBalance({
   accountAddress: account.accountAddress,
 });
 // balance is bigint in octas (1 APT = 100_000_000 octas)
-console.log(Number(balance) / 100_000_000, "APT");
+const apt = balance / 100_000_000n;
+const remainder = balance % 100_000_000n;
+console.log(`${apt}.${remainder.toString().padStart(8, "0")} APT`);
 ```
 
 ---
@@ -86,7 +88,7 @@ const [seller, price, isActive] = await aptos.view({
 });
 const listing = {
   seller: seller as string,
-  price: Number(price),
+  price: BigInt(price as string),
   isActive: isActive as boolean,
 };
 ```
@@ -181,4 +183,4 @@ const { resources, cursor } = await aptos.getAccountResourcesPage({
 
 - SDK: `src/internal/view.ts`, `src/api/account.ts`, balance/getBalance in internal
 - Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-client](../ts-sdk-client), [ts-sdk-types](../ts-sdk-types), [use-ts-sdk](../use-ts-sdk)
+- Related: [ts-sdk-client](../ts-sdk-client/SKILL.md), [ts-sdk-types](../ts-sdk-types/SKILL.md), [use-ts-sdk](../use-ts-sdk/SKILL.md)

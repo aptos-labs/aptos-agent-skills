@@ -138,4 +138,4 @@ After construction, use the same `aptos` instance for:
 
 - SDK: `src/api/aptos.ts`, `src/api/aptosConfig.ts`
 - Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-account](../ts-sdk-account), [ts-sdk-transactions](../ts-sdk-transactions), [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter), [use-ts-sdk](../use-ts-sdk)
+- Related: [ts-sdk-account](../ts-sdk-account/SKILL.md), [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md), [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter/SKILL.md), [use-ts-sdk](../use-ts-sdk/SKILL.md)

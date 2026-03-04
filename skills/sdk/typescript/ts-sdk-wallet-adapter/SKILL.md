@@ -192,4 +192,4 @@ function WalletInfo() {
 
 - Wallet Adapter: https://aptos.dev/build/sdks/wallet-adapter/dapp
 - Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-transactions](../ts-sdk-transactions), [ts-sdk-client](../ts-sdk-client), [use-ts-sdk](../use-ts-sdk)
+- Related: [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md), [ts-sdk-client](../ts-sdk-client/SKILL.md), [use-ts-sdk](../use-ts-sdk/SKILL.md)
