@@ -65,9 +65,9 @@ metadata:
 ## Quick Workflow
 
 1. **Create module structure** → Define structs, events, constants, init_module
-3. **Implement object creation** → Use proper constructor pattern with all refs generated upfront
-4. **Add access control** → Verify ownership and validate all inputs
-5. **Security check** → Use `security-audit` skill before deployment
+2. **Implement object creation** → Use proper constructor pattern with all refs generated upfront
+3. **Add access control** → Verify ownership and validate all inputs
+4. **Security check** → Use `security-audit` skill before deployment
 
 ## Key Example: Object Creation Pattern
 
