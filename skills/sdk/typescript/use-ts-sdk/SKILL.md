@@ -155,20 +155,6 @@ async function submitTransaction(
 
 ## SDK Version Notes
 
-### Balance Queries (v5.1+)
-
-```typescript
-// CORRECT (v5.1+)
-const balance = await aptos.getBalance({
-  accountAddress: account.accountAddress
-});
-// Returns bigint in octas (1 APT = 100_000_000 octas)
-
-// DEPRECATED - do NOT use
-// await aptos.getAccountCoinAmount(...)
-// await aptos.getAccountAPTAmount(...)
-```
-
 ### AIP-80 Private Key Format (v2.0+)
 
 Ed25519 and Secp256k1 private keys now use an AIP-80 prefixed format when serialized with `toString()`:
@@ -176,18 +162,6 @@ Ed25519 and Secp256k1 private keys now use an AIP-80 prefixed format when serial
 ```typescript
 const key = new Ed25519PrivateKey("0x...");
 key.toString(); // Returns AIP-80 prefixed format, NOT raw hex
-```
-
-### AccountAddress Parsing (v1.32+)
-
-`AccountAddress.fromString()` now only accepts SHORT format (60-64 hex chars) by default. Use `AccountAddress.from()` for flexible parsing:
-
-```typescript
-// CORRECT
-const addr = AccountAddress.from("0x1"); // Accepts any format
-
-// MAY FAIL in v1.32+
-// AccountAddress.fromString("0x1") -- too short for SHORT format
 ```
 
 ### Fungible Asset Transfers (v1.39+)
@@ -199,17 +173,6 @@ await aptos.transferFungibleAssetBetweenStores({
   senderStoreAddress: fromStore,
   recipientStoreAddress: toStore,
   amount: 1000n
-});
-```
-
-### Bun Runtime Compatibility
-
-When using Bun instead of Node.js, disable HTTP/2 in the client config:
-
-```typescript
-const config = new AptosConfig({
-  network: Network.TESTNET,
-  clientConfig: { http2: false }
 });
 ```
 
