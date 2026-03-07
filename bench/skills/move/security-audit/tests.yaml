@@ -1,10 +1,10 @@
 - description: "Audit Insecure Contract"
   vars:
     task: "Perform a comprehensive security audit of this Move smart contract. Identify all vulnerabilities, categorize them by severity (Critical, High, Medium, Low), and provide specific remediation recommendations."
-    contractCode: file://../../fixtures/contracts/insecure-contract.move
+    contractCode: file://../../../fixtures/contracts/insecure-contract.move
   assert:
     - type: javascript
-      value: file://../../assertions/audit-report-check.js
+      value: file://../../../assertions/audit-report-check.js
     - type: contains
       value: "access control"
     - type: contains
@@ -15,9 +15,9 @@
 - description: "Audit Secure Contract (False Positive Detection)"
   vars:
     task: "Perform a comprehensive security audit of this Move smart contract. Identify all vulnerabilities, categorize them by severity, and provide remediation recommendations."
-    contractCode: file://../../fixtures/contracts/nft-collection.move
+    contractCode: file://../../../fixtures/contracts/nft-collection.move
   assert:
     - type: javascript
-      value: file://../../assertions/audit-report-check.js
+      value: file://../../../assertions/audit-report-check.js
     - type: not-icontains
       value: "critical vulnerability"

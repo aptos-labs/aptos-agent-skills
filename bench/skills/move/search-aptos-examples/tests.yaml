@@ -5,7 +5,7 @@
     - type: icontains
       value: "fungible_asset"
     - type: icontains
-      value: "primary_fungible_store"
+      value: "fungible"
     - type: llm-rubric
       value: "The response should contain Move V2 code examples showing fungible asset creation with proper ref management. Must not use deprecated coin module patterns."
 

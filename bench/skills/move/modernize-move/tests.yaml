@@ -1,12 +1,12 @@
 - description: "Full V1 Contract Modernization"
   vars:
     task: "Modernize this Move V1 contract to V2 syntax and patterns. Replace resource accounts with Objects, update to fungible_asset from coin, use modern syntax (receiver style, vector indexing, inline functions), add #[event] and #[view] annotations."
-    contractCode: file://../../fixtures/contracts/v1-legacy-contract.move
+    contractCode: file://../../../fixtures/contracts/v1-legacy-contract.move
   assert:
     - type: javascript
-      value: file://../../assertions/compile-check.js
+      value: file://../../../assertions/compile-check.js
     - type: javascript
-      value: file://../../assertions/v2-syntax-check.js
+      value: file://../../../assertions/v2-syntax-check.js
 
 - description: "Mixed V1/V2 Partial Modernization"
   vars:
@@ -45,4 +45,4 @@
       }
   assert:
     - type: javascript
-      value: file://../../assertions/v2-syntax-check.js
+      value: file://../../../assertions/v2-syntax-check.js

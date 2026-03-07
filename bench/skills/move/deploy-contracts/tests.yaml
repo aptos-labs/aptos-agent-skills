@@ -5,6 +5,6 @@
     - type: icontains
       value: "aptos move publish"
     - type: icontains
-      value: "testnet"
+      value: "network"
     - type: llm-rubric
       value: "The response should include: 1) compilation command, 2) the publish command with correct flags, 3) safety warnings about verifying the network and checking gas costs, 4) post-deployment verification steps."

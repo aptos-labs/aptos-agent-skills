@@ -3,9 +3,9 @@
     task: "Create a new Aptos account and fund it on devnet using the TypeScript SDK. Show the complete flow from account generation to funding."
   assert:
     - type: javascript
-      value: file://../../assertions/ts-syntax-check.js
+      value: file://../../../assertions/ts-syntax-check.js
     - type: javascript
-      value: file://../../assertions/ts-sdk-pattern-check.js
+      value: file://../../../assertions/ts-sdk-pattern-check.js
     - type: icontains
       value: "Account.generate"
     - type: icontains
@@ -16,8 +16,8 @@
     task: "Create an Aptos account from an existing private key using the TypeScript SDK. Show how to import a private key securely from environment variables."
   assert:
     - type: javascript
-      value: file://../../assertions/ts-syntax-check.js
+      value: file://../../../assertions/ts-syntax-check.js
     - type: javascript
-      value: file://../../assertions/ts-sdk-pattern-check.js
+      value: file://../../../assertions/ts-sdk-pattern-check.js
     - type: icontains
       value: "fromPrivateKey"
