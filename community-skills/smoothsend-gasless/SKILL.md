@@ -1,14 +1,14 @@
 ---
 name: smoothsend-gasless
 description:
-  "How to sponsor gas fees for Aptos dApp users using SmoothSend. Covers 3-line wallet adapter integration
-  (transactionSubmitter), Script Composer for fee-in-token stablecoin transfers, and credit-based billing.
+  "How to sponsor gas fees for Aptos dApp users using SmoothSend. Paid commercial service: free on testnet, credit-based on mainnet.
+  Covers 3-line wallet adapter integration (transactionSubmitter), Script Composer for fee-in-token stablecoin transfers.
   Triggers on: 'gasless', 'sponsor gas', 'users pay no APT', 'transactionSubmitter', 'SmoothSend',
   'fee payer', 'pay gas for users', 'no gas required'."
 metadata:
+  author: ivedmohan
   category: sdk
   tags: ["typescript", "sdk", "wallet", "gasless", "sponsored", "smoothsend", "transactionSubmitter"]
-  priority: high
 ---
 
 # TypeScript SDK: SmoothSend Gasless Transactions
@@ -16,6 +16,8 @@ metadata:
 ## Purpose
 
 Guide **gasless transaction sponsorship** on Aptos using [SmoothSend](https://smoothsend.xyz). Users sign transactions via their wallet but never pay gas — you pay per transaction from pre-loaded credits. Works as a drop-in `transactionSubmitter` for `AptosWalletAdapterProvider`.
+
+**Paid commercial service:** Free on testnet; mainnet uses credit-based billing. See [Pricing](https://docs.smoothsend.xyz/pricing) for current rates.
 
 ## ALWAYS
 
@@ -125,13 +127,7 @@ try {
 
 ## Pricing
 
-| Network   | Cost                                  |
-|-----------|----------------------------------------|
-| Testnet   | Free — no credits required             |
-| Mainnet (Wallet Adapter) | MAX(gas×1.5, $0.01) per tx      |
-| Mainnet (Script Composer) | ~$0.01 deducted from token       |
-
-Credits are pre-loaded via [dashboard.smoothsend.xyz](https://dashboard.smoothsend.xyz).
+See [SmoothSend Pricing](https://docs.smoothsend.xyz/pricing) for current rates. Testnet is free; mainnet uses credit packs.
 
 ---
 
@@ -150,7 +146,8 @@ Credits are pre-loaded via [dashboard.smoothsend.xyz](https://dashboard.smoothse
 ## References
 
 - SmoothSend Docs: https://docs.smoothsend.xyz
+- Pricing: https://docs.smoothsend.xyz/pricing
 - Dashboard: https://dashboard.smoothsend.xyz
 - npm: https://www.npmjs.com/package/@smoothsend/sdk
 - MCP (AI context): `npx @smoothsend/mcp` — tools for get_docs, estimate_credits, get_code_snippet
-- Related: [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter/SKILL.md), [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md)
+- Related: [ts-sdk-wallet-adapter](../../skills/sdk/typescript/ts-sdk-wallet-adapter/SKILL.md), [ts-sdk-transactions](../../skills/sdk/typescript/ts-sdk-transactions/SKILL.md)

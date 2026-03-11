@@ -29,8 +29,7 @@
         "./skills/sdk/typescript/ts-sdk-transactions",
         "./skills/sdk/typescript/ts-sdk-view-and-query",
         "./skills/sdk/typescript/ts-sdk-types",
-        "./skills/sdk/typescript/ts-sdk-wallet-adapter",
-        "./skills/sdk/typescript/smoothsend-gasless"
+        "./skills/sdk/typescript/ts-sdk-wallet-adapter"
       ]
     },
     {
@@ -38,7 +37,9 @@
       "description": "Community-built skills showcasing third-party tools and integrations. Independently maintained by their authors.",
       "source": "./community-skills",
       "strict": false,
-      "skills": []
+      "skills": [
+        "./community-skills/smoothsend-gasless"
+      ]
     }
   ]
 }
