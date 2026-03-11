@@ -31,6 +31,13 @@
         "./skills/sdk/typescript/ts-sdk-types",
         "./skills/sdk/typescript/ts-sdk-wallet-adapter"
       ]
+    },
+    {
+      "name": "community-skills",
+      "description": "Community-built skills showcasing third-party tools and integrations. Independently maintained by their authors.",
+      "source": "./community",
+      "strict": false,
+      "skills": []
     }
   ]
 }

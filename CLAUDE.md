@@ -170,6 +170,18 @@ total loss of funds.
 - ✅ Tell users to check `~/.aptos/config.yaml` themselves rather than reading it for them
 - ✅ Use `--profile <name>` to reference keys indirectly through the Aptos CLI
 
+## Community Skills
+
+Community skills are built by developers across the Aptos ecosystem. They
+showcase third-party tools, integrations, and patterns. These skills are
+independently maintained by their authors and have not been reviewed or
+audited by Aptos Labs. See [community/README.md](community/README.md)
+for contribution guidelines.
+
+| Skill | Author | Purpose |
+| --- | --- | --- |
+| *(none yet — see community/ folder)* | | |
+
 ## Integration
 
 **Claude Code:** This file is automatically loaded when detected in the repository.
