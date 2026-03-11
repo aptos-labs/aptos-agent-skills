@@ -34,6 +34,18 @@ Specialized skills for AI assistants to build secure, modern Aptos dApps.
 | [modernize-move](skills/move/modernize-move/SKILL.md)                     | Modernize V1 contracts   |
 | [use-typescript-sdk](skills/sdk/use-typescript-sdk/SKILL.md)              | TypeScript SDK guide     |
 
+## Community Skills
+
+Community skills are built by developers across the Aptos ecosystem. They
+showcase third-party tools, integrations, and patterns. These skills are
+independently maintained by their authors and have not been reviewed or
+audited by Aptos Labs. See [community/README.md](community/README.md)
+for contribution guidelines.
+
+| Skill | Author | Purpose |
+| --- | --- | --- |
+| *(none yet — see community/ folder)* | | |
+
 ## Integration
 
 **Claude Code:** This file is automatically loaded when detected in the repository.

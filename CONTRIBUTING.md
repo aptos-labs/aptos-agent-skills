@@ -100,11 +100,11 @@ If you find specific issues without running the full workflow:
 - Add missing integrations
 - Update tool references
 
-### 3. New Skills
+### 3. New Official Skills
 
-To add a new skill:
+To add a new official skill:
 
-1. Create `skills/<skill-name>/SKILL.md`
+1. Create `skills/<category>/<skill-name>/SKILL.md`
 2. Follow the template from existing skills
 3. Include:
    - Clear purpose statement
@@ -115,7 +115,41 @@ To add a new skill:
 4. Update `CLAUDE.md` with skill reference
 5. Update `setups/AGENTS.md` if it affects workflow
 
-### 4. Bug Fixes
+### 4. Community Skills
+
+Community skills showcase third-party tools, integrations, and patterns built by developers across the Aptos ecosystem.
+They are independently maintained by their authors and have not been reviewed or audited by Aptos Labs.
+
+To contribute a community skill:
+
+1. Create `community/<skill-name>/SKILL.md`
+2. Use a flat structure — no sub-categorization within `community/`
+3. Include `author` in your `SKILL.md` frontmatter metadata:
+   ```yaml
+   ---
+   name: your-skill-name
+   description: "What your skill does"
+   metadata:
+     author: your-github-username
+     category: sdk | move | tooling
+     tags: ["relevant", "tags"]
+   ---
+   ```
+4. One `SKILL.md` per skill — link to external repos/docs rather than bundling sample files
+5. If your skill integrates a paid service, note that clearly in the description
+
+Your PR should **only**:
+- Add files under `community/<skill-name>/`
+- Add a row to the **Community Skills** table in `CLAUDE.md`
+- Add your skill path to the `community-skills` plugin entry in `.claude-plugin/marketplace.json`
+
+Your PR must **not** modify:
+- Official skills under `skills/`
+- The official skills table in `CLAUDE.md`
+- The official `aptos-agent-skills` plugin entry in `.claude-plugin/marketplace.json`
+- Any orchestrator routing (e.g., `use-typescript-sdk`)
+
+### 5. Bug Fixes
 
 If you find bugs in:
 
