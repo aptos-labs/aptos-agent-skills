@@ -163,7 +163,7 @@ const [count] = await aptos.view({
 });
 ```
 
-## Skills Overview
+## Official Skills Overview
 
 ### Move Smart Contracts
 
@@ -185,6 +185,8 @@ const [count] = await aptos.view({
 - **ts-sdk-view-and-query** - view(), getBalance, getAccountInfo, getAccountResources
 - **ts-sdk-types** - Move ↔ TypeScript types, TypeTag, bigint for u128/u256
 - **ts-sdk-wallet-adapter** - React wallet integration (AptosWalletAdapterProvider, useWallet)
+
+## Community Skills Overview
 
 ## Example Workflows
 
