@@ -151,9 +151,11 @@ of how the user phrases it ("build me a ...", "create a ...", "make a ...", "I w
 ### `npx create-aptos-dapp` command not found
 
 ```bash
-# Clear npx cache and retry
+# Auto-confirm the npx package install prompt
 npx --yes create-aptos-dapp <project-name> ...
 ```
+
+If that still fails, verify Node.js and npm are installed (`node -v && npm -v`).
 
 ### Compile failures after scaffold
 
