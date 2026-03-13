@@ -2,7 +2,16 @@
   "name": "aptos-agent-skills",
   "version": "1.0.0",
   "description": "AI skills for building fullstack Aptos dApps - Move smart contracts and frontend integration",
-  "keywords": ["aptos", "move", "smart-contracts", "agent-skills", "ai", "claude", "cursor", "web3"],
+  "keywords": [
+    "aptos",
+    "move",
+    "smart-contracts",
+    "agent-skills",
+    "ai",
+    "claude",
+    "cursor",
+    "web3"
+  ],
   "author": "aptos-labs",
   "license": "MIT",
   "homepage": "https://github.com/aptos-labs/aptos-agent-skills",
@@ -11,10 +20,16 @@
     "url": "git+https://github.com/aptos-labs/aptos-agent-skills.git"
   },
   "scripts": {
-    "format": "prettier --write \"**/*.md\"",
-    "format:check": "prettier --check \"**/*.md\""
+    "format": "prettier --write \"**/*.{md,json,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{md,json,yml,yaml}\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{md,json,yml,yaml}": "prettier --write"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
     "prettier": "^3.8.1"
   },
   "agentSkills": {
