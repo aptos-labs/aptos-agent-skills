@@ -1,10 +1,10 @@
 ---
 name: ts-sdk-address
 description:
-  "How to create and use AccountAddress in @aptos-labs/ts-sdk. Covers address format (AIP-40), from/fromString/fromStrict,
-  special addresses, LONG vs SHORT form, and derived addresses (object, resource, token, user-derived). Triggers on:
-  'AccountAddress', 'AccountAddress.from', 'AIP-40', 'derived address', 'createObjectAddress',
-  'createResourceAddress', 'createTokenAddress'."
+  "How to create and use AccountAddress in @aptos-labs/ts-sdk. Covers address format (AIP-40),
+  from/fromString/fromStrict, special addresses, LONG vs SHORT form, and derived addresses (object, resource, token,
+  user-derived). Triggers on: 'AccountAddress', 'AccountAddress.from', 'AIP-40', 'derived address',
+  'createObjectAddress', 'createResourceAddress', 'createTokenAddress'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "address", "account-address", "aip-40"]
@@ -15,19 +15,24 @@ metadata:
 
 ## Purpose
 
-Guide correct creation, parsing, and formatting of **account addresses** in `@aptos-labs/ts-sdk`. Addresses are 32-byte values; string format follows **AIP-40**.
+Guide correct creation, parsing, and formatting of **account addresses** in `@aptos-labs/ts-sdk`. Addresses are 32-byte
+values; string format follows **AIP-40**.
 
 ## ALWAYS
 
-1. **Use `AccountAddress.from()` for flexible input** – accepts string (with or without `0x`), `Uint8Array`, or existing `AccountAddress`.
-2. **Use addresses as `AccountAddress` or string in API** – SDK accepts `AccountAddressInput` (string or `AccountAddress`) in most APIs.
-3. **Use `AccountAddress.fromStringStrict()` / `AccountAddress.fromStrict()`** when you need AIP-40 strict: LONG (0x + 64 hex chars) or SHORT only for special (0x0–0xf).
+1. **Use `AccountAddress.from()` for flexible input** – accepts string (with or without `0x`), `Uint8Array`, or existing
+   `AccountAddress`.
+2. **Use addresses as `AccountAddress` or string in API** – SDK accepts `AccountAddressInput` (string or
+   `AccountAddress`) in most APIs.
+3. **Use `AccountAddress.fromStringStrict()` / `AccountAddress.fromStrict()`** when you need AIP-40 strict: LONG (0x +
+   64 hex chars) or SHORT only for special (0x0–0xf).
 4. **Use derived address helpers** from the SDK for object/resource/token addresses – do not hand-roll hashing.
 
 ## NEVER
 
 1. **Do not use raw strings for comparison** – use `addr.equals(other)` or normalize with `AccountAddress.from()`.
-2. **Do not assume SHORT form for non-special addresses** – non-special addresses must be LONG (64 hex chars) in strict mode.
+2. **Do not assume SHORT form for non-special addresses** – non-special addresses must be LONG (64 hex chars) in strict
+   mode.
 3. **Do not use the `Hex` class for account addresses** – use `AccountAddress` only (per SDK docs).
 
 ---
@@ -78,28 +83,28 @@ const addrFrom = AccountAddress.from(bytes);
 ### Built-in constants
 
 ```typescript
-AccountAddress.ZERO;  // 0x0
-AccountAddress.ONE;   // 0x1
-AccountAddress.TWO;   // 0x2
+AccountAddress.ZERO; // 0x0
+AccountAddress.ONE; // 0x1
+AccountAddress.TWO; // 0x2
 AccountAddress.THREE; // 0x3
-AccountAddress.FOUR;  // 0x4
-AccountAddress.A;     // 0xa
+AccountAddress.FOUR; // 0x4
+AccountAddress.A; // 0xa
 ```
 
 ---
 
 ## String output
 
-| Method | Use case |
-|--------|----------|
-| `addr.toString()` | AIP-40 default: SHORT for special, LONG for others |
-| `addr.toStringLong()` | Always 0x + 64 hex chars |
-| `addr.toStringShort()` | Shortest form (no leading zeros) |
-| `addr.toStringLongWithoutPrefix()` | 64 hex chars, no `0x` |
+| Method                             | Use case                                           |
+| ---------------------------------- | -------------------------------------------------- |
+| `addr.toString()`                  | AIP-40 default: SHORT for special, LONG for others |
+| `addr.toStringLong()`              | Always 0x + 64 hex chars                           |
+| `addr.toStringShort()`             | Shortest form (no leading zeros)                   |
+| `addr.toStringLongWithoutPrefix()` | 64 hex chars, no `0x`                              |
 
 ```typescript
 const addr = AccountAddress.from("0x1");
-addr.toString();   // "0x1"
+addr.toString(); // "0x1"
 addr.toStringLong(); // "0x0000...0001" (64 chars after 0x)
 ```
 
@@ -131,7 +136,7 @@ import {
   createObjectAddress,
   createResourceAddress,
   createTokenAddress,
-  createUserDerivedObjectAddress,
+  createUserDerivedObjectAddress
 } from "@aptos-labs/ts-sdk";
 ```
 
@@ -186,12 +191,12 @@ a.equals(b); // true
 
 ## Common mistakes
 
-| Mistake | Correct approach |
-|--------|-------------------|
-| Using `Hex` for account address | Use `AccountAddress` only |
-| Comparing with `===` on strings | Use `addr1.equals(addr2)` or compare after `AccountAddress.from()` |
-| Using SHORT for non-special in strict | Use LONG (0x + 64 hex chars) or `AccountAddress.from()` (relaxed) |
-| Hand-rolling object address hash | Use `createObjectAddress` / `createTokenAddress` / `createResourceAddress` / `createUserDerivedObjectAddress` |
+| Mistake                               | Correct approach                                                                                              |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Using `Hex` for account address       | Use `AccountAddress` only                                                                                     |
+| Comparing with `===` on strings       | Use `addr1.equals(addr2)` or compare after `AccountAddress.from()`                                            |
+| Using SHORT for non-special in strict | Use LONG (0x + 64 hex chars) or `AccountAddress.from()` (relaxed)                                             |
+| Hand-rolling object address hash      | Use `createObjectAddress` / `createTokenAddress` / `createResourceAddress` / `createUserDerivedObjectAddress` |
 
 ---
 

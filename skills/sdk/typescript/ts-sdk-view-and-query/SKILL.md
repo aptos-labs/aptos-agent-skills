@@ -2,8 +2,8 @@
 name: ts-sdk-view-and-query
 description:
   "How to read on-chain data in @aptos-labs/ts-sdk: view(), getBalance(), getAccountInfo(), getAccountResources(),
-  getAccountModules(), getResource(). Triggers on: 'aptos.view', 'getBalance', 'getAccountInfo',
-  'getAccountResources', 'SDK query', 'view function TypeScript'."
+  getAccountModules(), getResource(). Triggers on: 'aptos.view', 'getBalance', 'getAccountInfo', 'getAccountResources',
+  'SDK query', 'view function TypeScript'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "view", "balance", "account", "resources", "query"]
@@ -14,13 +14,16 @@ metadata:
 
 ## Purpose
 
-Guide **read-only** access to chain data in `@aptos-labs/ts-sdk`: view functions, balance, account info, resources, and modules.
+Guide **read-only** access to chain data in `@aptos-labs/ts-sdk`: view functions, balance, account info, resources, and
+modules.
 
 ## ALWAYS
 
-1. **Use `aptos.getBalance({ accountAddress })` for APT balance** – not deprecated `getAccountCoinAmount` / `getAccountAPTAmount`.
+1. **Use `aptos.getBalance({ accountAddress })` for APT balance** – not deprecated `getAccountCoinAmount` /
+   `getAccountAPTAmount`.
 2. **Use `aptos.view()` for Move view functions** – pass `function`, `functionArguments`, and optional `typeArguments`.
-3. **Use `bigint` for u128/u256 view return values** – cast `result[0]` to `BigInt(...)` when the Move function returns u128/u256.
+3. **Use `bigint` for u128/u256 view return values** – cast `result[0]` to `BigInt(...)` when the Move function returns
+   u128/u256.
 4. **Pass address as string or AccountAddress** – SDK accepts `AccountAddressInput` (string or `AccountAddress`).
 
 ## NEVER
@@ -35,7 +38,7 @@ Guide **read-only** access to chain data in `@aptos-labs/ts-sdk`: view functions
 
 ```typescript
 const balance = await aptos.getBalance({
-  accountAddress: account.accountAddress,
+  accountAddress: account.accountAddress
 });
 // balance is bigint in octas (1 APT = 100_000_000 octas)
 const apt = balance / 100_000_000n;
@@ -49,7 +52,7 @@ console.log(`${apt}.${remainder.toString().padStart(8, "0")} APT`);
 
 ```typescript
 const accountInfo = await aptos.getAccountInfo({
-  accountAddress: "0x1",
+  accountAddress: "0x1"
 });
 // accountInfo: { sequence_number, authentication_key, ... }
 ```
@@ -63,8 +66,8 @@ const accountInfo = await aptos.getAccountInfo({
 const result = await aptos.view({
   payload: {
     function: `${MODULE_ADDRESS}::counter::get_count`,
-    functionArguments: [accountAddress],
-  },
+    functionArguments: [accountAddress]
+  }
 });
 const count = Number(result[0]);
 
@@ -73,8 +76,8 @@ const balanceResult = await aptos.view({
   payload: {
     function: "0x1::coin::balance",
     typeArguments: ["0x1::aptos_coin::AptosCoin"],
-    functionArguments: [accountAddress],
-  },
+    functionArguments: [accountAddress]
+  }
 });
 const coinBalance = BigInt(balanceResult[0] as string);
 
@@ -83,13 +86,13 @@ const coinBalance = BigInt(balanceResult[0] as string);
 const [seller, price, isActive] = await aptos.view({
   payload: {
     function: `${MODULE_ADDRESS}::marketplace::get_listing`,
-    functionArguments: [listingAddress],
-  },
+    functionArguments: [listingAddress]
+  }
 });
 const listing = {
   seller: seller as string,
   price: BigInt(price as string),
-  isActive: isActive as boolean,
+  isActive: isActive as boolean
 };
 ```
 
@@ -99,12 +102,10 @@ const listing = {
 
 ```typescript
 const resources = await aptos.getAccountResources({
-  accountAddress: account.accountAddress,
+  accountAddress: account.accountAddress
 });
 // resources: Array<MoveResource>
-const counterResource = resources.find(
-  (r) => r.type === `${MODULE_ADDRESS}::counter::Counter`
-);
+const counterResource = resources.find((r) => r.type === `${MODULE_ADDRESS}::counter::Counter`);
 ```
 
 ---
@@ -114,7 +115,7 @@ const counterResource = resources.find(
 ```typescript
 const resource = await aptos.getAccountResource({
   accountAddress: account.accountAddress,
-  resourceType: `${MODULE_ADDRESS}::counter::Counter`,
+  resourceType: `${MODULE_ADDRESS}::counter::Counter`
 });
 // resource.data has the struct fields
 const value = (resource?.data as { value: number })?.value;
@@ -126,7 +127,7 @@ const value = (resource?.data as { value: number })?.value;
 
 ```typescript
 const modules = await aptos.getAccountModules({
-  accountAddress: modulePublisherAddress,
+  accountAddress: modulePublisherAddress
 });
 // modules: MoveModuleBytecode[] (ABI, bytecode)
 ```
@@ -138,7 +139,7 @@ const modules = await aptos.getAccountModules({
 ```typescript
 const module = await aptos.getModule({
   accountAddress: modulePublisherAddress,
-  moduleName: "counter",
+  moduleName: "counter"
 });
 ```
 
@@ -151,7 +152,7 @@ Use cursor-based options when available:
 ```typescript
 const { resources, cursor } = await aptos.getAccountResourcesPage({
   accountAddress: account.accountAddress,
-  options: { limit: 10, cursor: nextCursor },
+  options: { limit: 10, cursor: nextCursor }
 });
 ```
 
@@ -159,22 +160,22 @@ const { resources, cursor } = await aptos.getAccountResourcesPage({
 
 ## Type handling for view results
 
-| Move return type | TypeScript | Example |
-|------------------|------------|---------|
-| u8..u64 | number or bigint | `Number(result[0])` or `BigInt(result[0])` |
-| u128, u256 | bigint | `BigInt(result[0] as string)` |
-| address | string | `result[0] as string` |
-| bool | boolean | `result[0] as boolean` |
-| vector<T> | array | `result[0] as T[]` |
+| Move return type | TypeScript       | Example                                    |
+| ---------------- | ---------------- | ------------------------------------------ |
+| u8..u64          | number or bigint | `Number(result[0])` or `BigInt(result[0])` |
+| u128, u256       | bigint           | `BigInt(result[0] as string)`              |
+| address          | string           | `result[0] as string`                      |
+| bool             | boolean          | `result[0] as boolean`                     |
+| vector<T>        | array            | `result[0] as T[]`                         |
 
 ---
 
 ## Common mistakes
 
-| Mistake | Correct approach |
-|--------|-------------------|
-| Using getAccountCoinAmount | Use `aptos.getBalance({ accountAddress })` |
-| Using number for u128 | Use `BigInt(result[0] as string)` |
+| Mistake                                   | Correct approach                                              |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| Using getAccountCoinAmount                | Use `aptos.getBalance({ accountAddress })`                    |
+| Using number for u128                     | Use `BigInt(result[0] as string)`                             |
 | Forgetting typeArguments for generic view | Add `typeArguments: [coinType]` when Move function is generic |
 
 ---
@@ -183,4 +184,5 @@ const { resources, cursor } = await aptos.getAccountResourcesPage({
 
 - SDK: `src/internal/view.ts`, `src/api/account.ts`, balance/getBalance in internal
 - Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-client](../ts-sdk-client/SKILL.md), [ts-sdk-types](../ts-sdk-types/SKILL.md), [use-ts-sdk](../use-ts-sdk/SKILL.md)
+- Related: [ts-sdk-client](../ts-sdk-client/SKILL.md), [ts-sdk-types](../ts-sdk-types/SKILL.md),
+  [use-ts-sdk](../use-ts-sdk/SKILL.md)

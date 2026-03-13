@@ -138,11 +138,13 @@ To contribute a community skill:
 5. If your skill integrates a paid service, note that clearly in the description
 
 Your PR should **only**:
+
 - Add files under `community-skills/<skill-name>/`
 - Add a row to the **Community Skills** table in `CLAUDE.md`
 - Add your skill path to the `community-skills` plugin entry in `.claude-plugin/marketplace.json`
 
 Your PR must **not** modify:
+
 - Official skills under `skills/`
 - The official skills table in `CLAUDE.md`
 - The official `aptos-agent-skills` plugin entry in `.claude-plugin/marketplace.json`

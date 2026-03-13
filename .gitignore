@@ -21,6 +21,11 @@ node_modules/
 .pnp/
 .pnp.js
 
+# Non-bun lockfiles
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
 # Testing and Coverage
 .coverage/
 coverage/

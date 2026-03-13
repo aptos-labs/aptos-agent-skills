@@ -1,13 +1,14 @@
 # Modernize Move — Detection Rules
 
-Complete catalog of V1/outdated pattern detection rules organized by tier. Each rule includes what to search for, the modern replacement, and confidence level.
+Complete catalog of V1/outdated pattern detection rules organized by tier. Each rule includes what to search for, the
+modern replacement, and confidence level.
 
 ---
 
 ## Tier 1 — Syntax (Safe — Identical Compiled Output)
 
-These changes produce identical compiled output. Most apply unconditionally;
-T1-03 (receiver style) requires verifying the target function's first parameter is named `self`.
+These changes produce identical compiled output. Most apply unconditionally; T1-03 (receiver style) requires verifying
+the target function's first parameter is named `self`.
 
 ### T1-01: Vector Borrow → Index Notation (Move 2.0+)
 
@@ -31,7 +32,8 @@ T1-03 (receiver style) requires verifying the target function's first parameter 
 - **Search for:** `module::func(&obj, ...)` or `module::func(&mut obj, ...)`
 - **Pattern:** `items::get_value(&item)` where `get_value` has `self: &Object<Item>`
 - **Replace with:** `item.get_value()`
-- **Safety check:** Read the target function definition. ONLY convert if first parameter is named `self`. If first parameter has any other name, do NOT convert.
+- **Safety check:** Read the target function definition. ONLY convert if first parameter is named `self`. If first
+  parameter has any other name, do NOT convert.
 - **Detection regex:** `\w+::\w+\(&(mut\s+)?\w+`
 
 ### T1-04: Add Assignment (Move 2.1+)
@@ -77,7 +79,8 @@ T1-03 (receiver style) requires verifying the target function's first parameter 
 ### T1-09: While Loop with Counter → For Range Loop (Move 2.0+)
 
 - **Confidence:** High
-- **Search for:** `while` loop with a counter variable initialized before and incremented inside (`i = i + 1` or `i += 1`)
+- **Search for:** `while` loop with a counter variable initialized before and incremented inside (`i = i + 1` or
+  `i += 1`)
 - **Pattern:**
   ```move
   let i = 0;
@@ -92,9 +95,12 @@ T1-03 (receiver style) requires verifying the target function's first parameter 
       // body
   };
   ```
-- **When to apply:** Convert `while` loops that use a counter with a known range to `for` loops. Keep `while` for loops where the iteration count isn't known upfront (e.g., dynamic termination conditions, searching until a match, processing until a queue is empty).
+- **When to apply:** Convert `while` loops that use a counter with a known range to `for` loops. Keep `while` for loops
+  where the iteration count isn't known upfront (e.g., dynamic termination conditions, searching until a match,
+  processing until a queue is empty).
 - **Detection regex:** `while\s*\(\w+\s*<\s*` combined with `\w+\s*=\s*\w+\s*\+\s*1` or `\w+\s*\+=\s*1` in the loop body
-- **Note:** Also catches vector iteration patterns like `while (i < vector::length(&v))`. After conversion, combine with T1-01/T1-02 for index notation: `for (i in 0..vector::length(&v)) { ... v[i] ... }`
+- **Note:** Also catches vector iteration patterns like `while (i < vector::length(&v))`. After conversion, combine with
+  T1-01/T1-02 for index notation: `for (i in 0..vector::length(&v)) { ... v[i] ... }`
 
 ---
 
@@ -124,7 +130,8 @@ Same semantics, cleaner code. May require updating test annotations.
 - **Search for:** `assert!(condition, <integer_literal>)` or `abort <integer_literal>`
 - **Pattern:** `assert!(amount > 0, 1)` or `abort 42`
 - **Replace with:** Define `const E_DESCRIPTIVE_NAME: u64 = <same_value>;` and use it
-- **CRITICAL:** Preserve the exact numeric value. Tests using `#[expected_failure(abort_code = N)]` depend on the numeric value.
+- **CRITICAL:** Preserve the exact numeric value. Tests using `#[expected_failure(abort_code = N)]` depend on the
+  numeric value.
 - **Detection regex:** `assert!\([^,]+,\s*\d+\)` or `abort\s+\d+`
 
 ---
@@ -133,7 +140,9 @@ Same semantics, cleaner code. May require updating test annotations.
 
 Different APIs or architectural patterns. Apply ONE AT A TIME with test verification after each.
 
-**Most Tier 3 rules are breaking changes** that alter the on-chain ABI, storage layout, or event stream format. The skill workflow asks the user to choose `compatible` (skip breaking rules) or `fresh deploy` (allow breaking rules). Rules marked **Breaking: No** are internal refactors safe for compatible upgrades.
+**Most Tier 3 rules are breaking changes** that alter the on-chain ABI, storage layout, or event stream format. The
+skill workflow asks the user to choose `compatible` (skip breaking rules) or `fresh deploy` (allow breaking rules).
+Rules marked **Breaking: No** are internal refactors safe for compatible upgrades.
 
 ### T3-01: Raw Address Params → Object<T> (Move 2.0+)
 
@@ -151,7 +160,8 @@ Different APIs or architectural patterns. Apply ONE AT A TIME with test verifica
 - **Confidence:** Low — requires complete restructuring
 - **Search for:** `aptos_token::token`, `token::create_token_data_id`, `token::create_token_id`
 - **Replace with:** `aptos_token_objects::token`, `aptos_token_objects::collection`
-- **Scope of change:** Full module rewrite. Token creation, transfer, and query APIs are completely different. Recommend writing new module alongside old one.
+- **Scope of change:** Full module rewrite. Token creation, transfer, and query APIs are completely different. Recommend
+  writing new module alongside old one.
 - **Detection regex:** `aptos_token::token` or `token::create_token_data_id`
 
 ### T3-03: Coin Module → Fungible Asset (Major Rewrite)
@@ -160,7 +170,8 @@ Different APIs or architectural patterns. Apply ONE AT A TIME with test verifica
 - **Confidence:** Low — requires complete restructuring
 - **Search for:** `aptos_framework::coin`, `coin::transfer`, `coin::register`
 - **Replace with:** `aptos_framework::fungible_asset`, `primary_fungible_store`
-- **Scope of change:** Full module rewrite. Coin registration, transfer, and balance APIs are different. All `CoinType` generics become `Object<Metadata>`.
+- **Scope of change:** Full module rewrite. Coin registration, transfer, and balance APIs are different. All `CoinType`
+  generics become `Object<Metadata>`.
 - **Detection regex:** `aptos_framework::coin` or `coin::register` or `coin::transfer`
 
 ### T3-04: Resource Accounts → Named Objects
@@ -178,7 +189,8 @@ Different APIs or architectural patterns. Apply ONE AT A TIME with test verifica
 - **Confidence:** Medium — API differences exist
 - **Search for:** `aptos_std::smart_table`, `SmartTable<`
 - **Replace with:** `aptos_std::big_ordered_map`, `BigOrderedMap<`
-- **Scope of change:** API differences: `contains(&key)` vs `contains(key)`, `remove(&key)` vs `remove(key)`, different initialization.
+- **Scope of change:** API differences: `contains(&key)` vs `contains(key)`, `remove(&key)` vs `remove(key)`, different
+  initialization.
 - **Detection regex:** `SmartTable<` or `smart_table::`
 
 ### T3-06: State-Variant Structs → Enum Types (Move 2.0+)
@@ -189,13 +201,15 @@ Different APIs or architectural patterns. Apply ONE AT A TIME with test verifica
 - **Pattern:** `struct OrderPending`, `struct OrderFilled`, `struct OrderCancelled` or `struct Order { status: u8 }`
 - **Replace with:** Single `enum Order { Pending { ... }, Filled { ... }, Cancelled { ... } }`
 - **Scope of change:** All code that creates, reads, or pattern-matches on the entity needs rewriting.
-- **Detection regex:** Manual analysis required — look for groups of structs with shared prefixes or `status`/`type` discriminator fields
+- **Detection regex:** Manual analysis required — look for groups of structs with shared prefixes or `status`/`type`
+  discriminator fields
 
 ### T3-07: Manual Loop Iteration → Stdlib Inline Functions + Lambdas
 
 - **Breaking:** No — internal refactor only. Does not change ABI or storage layout.
 - **Confidence:** Medium
-- **Search for:** `for (i in 0..vector::length(` with index access inside, or any remaining while loops iterating over vectors
+- **Search for:** `for (i in 0..vector::length(` with index access inside, or any remaining while loops iterating over
+  vectors
 - **Replace with:** Stdlib inline functions with lambdas:
   - Read-only iteration: `vector::for_each_ref(&v, |elem| { ... })`
   - Mutable iteration: `vector::for_each_mut(&mut v, |elem| { ... })`
@@ -205,15 +219,18 @@ Different APIs or architectural patterns. Apply ONE AT A TIME with test verifica
   - Reduce: `vector::fold(v, init, |acc, elem| { ... })`
   - Filter: `vector::filter(v, |elem| { ... })`
   - Check: `vector::any(&v, |elem| { ... })` / `vector::all(&v, |elem| { ... })`
-- **Prerequisite:** Apply T1-09 (while → for) first. This rule converts for-loops over vectors into functional-style stdlib calls.
-- **Scope of change:** Restructures loop body into lambda. Loops with `break`/`continue` cannot be converted — keep as `for` loops.
+- **Prerequisite:** Apply T1-09 (while → for) first. This rule converts for-loops over vectors into functional-style
+  stdlib calls.
+- **Scope of change:** Restructures loop body into lambda. Loops with `break`/`continue` cannot be converted — keep as
+  `for` loops.
 - **Detection regex:** `for\s*\(\w+\s+in\s+0\.\.vector::length` or remaining `while\s*\(\w+\s*<\s*(vector::length|len)`
 
 ### T3-08: Custom Signed Int Workarounds → Native Types (Move 2.3+)
 
 - **Breaking:** Yes — different storage representation, incompatible with existing on-chain data.
 - **Confidence:** Medium
-- **Search for:** Custom modules implementing signed integer arithmetic, or patterns like `struct I64 { value: u64, negative: bool }`
+- **Search for:** Custom modules implementing signed integer arithmetic, or patterns like
+  `struct I64 { value: u64, negative: bool }`
 - **Replace with:** Native `i8`, `i16`, `i32`, `i64`, `i128`, `i256` types
 - **Scope of change:** Remove custom module, update all usages to native types.
 - **Detection regex:** `struct I64` or `struct I128` or `negative: bool` with arithmetic helpers
