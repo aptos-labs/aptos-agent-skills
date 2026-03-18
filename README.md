@@ -1,257 +1,128 @@
 # Aptos Agent Skills
 
-**AI-powered skills for building fullstack Aptos dApps - smart contracts and frontend integration**
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-Compatible-green.svg)](https://agentskills.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Skills: 17](https://img.shields.io/badge/Skills-17-green.svg)](#aptos-development-skills)
+[![Patterns: 9](https://img.shields.io/badge/Patterns-9-orange.svg)](patterns/)
 
-This repository provides specialized skills and patterns for AI assistants (Claude Code, Cursor, GitHub Copilot, future
-Aptos Vibe tool) to help developers build secure, well-tested Aptos dApps following best practices.
+AI-assisted Aptos blockchain development with **Claude Code**, **Cursor**, and **GitHub Copilot**. These skills give
+your AI coding assistant deep knowledge of Move smart contract development, the Aptos TypeScript SDK, and the full dApp
+lifecycle — from project scaffolding to deployment.
 
-## Features
+- **Move V2 Object Model** — Write secure smart contracts using modern Aptos patterns
+- **Gas Optimization** — Analyze and reduce transaction costs in Move contracts
+- **Security Auditing** — Catch vulnerabilities before deploying to devnet, testnet, or mainnet
+- **TypeScript SDK** — Integrate Aptos wallets, transactions, and view functions into your frontend
+- **AI-Powered Workflow** — Skills activate automatically based on developer intent
 
-- **15 Specialized Skills** - Context-aware skills for Move smart contract and TypeScript SDK development
-- **Move Smart Contracts** - Modern Move V2 object model patterns
-- **Security-First** - Comprehensive security checklist and audit patterns
-- **100% Test Coverage** - Automated test generation with coverage requirements
-- **Auto-Activation** - Skills trigger automatically based on developer actions
-- **Pattern Library** - Reference documentation for objects, digital assets, fungible assets, and more
-
-## Installation
-
-### Via npx skills (Recommended)
+## Install
 
 ```bash
+# Recommended
 npx skills add aptos-labs/aptos-agent-skills
-```
 
-### Claude Code Plugin
-
-```bash
+# Claude Code plugin
 /plugin marketplace add aptos-labs/aptos-agent-skills
+
+# Manual
+git clone https://github.com/aptos-labs/aptos-agent-skills.git
 ```
 
-### Selective Installation
+See [INSTALL.md](INSTALL.md) for selective installation and other options.
 
-```bash
-# Core Move skills only
-npx skills add aptos-labs/aptos-agent-skills \
-  --skill write-contracts \
-  --skill generate-tests \
-  --skill security-audit \
-  --skill deploy-contracts
-```
-
-See [INSTALL.md](INSTALL.md) for more installation options.
-
-## Quick Start
-
-### For Claude Code Users
-
-1. Install via npx skills or clone this repository:
-
-   ```bash
-   npx skills add aptos-labs/aptos-agent-skills
-   # or
-   git clone https://github.com/aptos-labs/aptos-agent-skills.git
-   ```
-
-2. The `CLAUDE.md` file will be automatically detected and loaded by Claude Code
-
-3. Start developing - skills activate automatically:
-   - "Create a new dApp" → project scaffolding guidance in CLAUDE.md
-   - "Write an NFT contract" → `/write-contracts` activates
-   - After writing code → `/generate-tests` auto-activates
-   - "Deploy to testnet" → `/deploy-contracts` activates
-   - "Check security" → `/security-audit` activates
-
-### For Other Editors (Cursor, Copilot)
-
-1. Install via npx skills or clone this repository
-2. Reference skill files in your prompts:
-   ```
-   @skills/move/write-contracts/SKILL.md Help me build an NFT marketplace
-   ```
-3. Include `CLAUDE.md` in your workspace context
-
-## Repository Structure
-
-```
-aptos-agent-skills/
-├── CLAUDE.md                              # Main guide for AI assistants (all editors)
-├── INSTALL.md                             # Installation guide
-├── README.md
-├── package.json
-├── .claude-plugin/
-│   └── marketplace.json                   # Claude Code marketplace config
-│
-├── skills/
-│   ├── sdk/
-│   │   └── typescript/
-│   │       ├── use-ts-sdk/                # TypeScript SDK orchestrator
-│   │       ├── ts-sdk-client/             # SDK client setup
-│   │       ├── ts-sdk-account/            # Account/signer creation
-│   │       ├── ts-sdk-address/            # Address parsing & derivation
-│   │       ├── ts-sdk-transactions/       # Build, sign, submit txns
-│   │       ├── ts-sdk-view-and-query/     # View functions & queries
-│   │       ├── ts-sdk-types/              # Move-to-TS type mapping
-│   │       └── ts-sdk-wallet-adapter/     # React wallet integration
-│   └── move/
-│       ├── write-contracts/
-│       ├── generate-tests/
-│       ├── security-audit/
-│       ├── deploy-contracts/
-│       ├── search-aptos-examples/
-│       ├── analyze-gas-optimization/
-│       └── modernize-move/
-│
-└── patterns/
-    ├── move/
-    │   ├── OBJECTS.md
-    │   ├── SECURITY.md
-    │   ├── DIGITAL_ASSETS.md
-    │   ├── FUNGIBLE_ASSETS.md
-    │   ├── MOVE_V2_SYNTAX.md
-    │   ├── ADVANCED_TYPES.md
-    │   ├── STORAGE_OPTIMIZATION.md
-    │   └── TESTING.md
-    └── fullstack/
-        └── TYPESCRIPT_SDK.md
-```
-
-## Core Principles
-
-### 1. Digital Asset Standard for NFTs
-
-```move
-// Use Aptos Digital Asset standard
-use aptos_token_objects::collection;
-use aptos_token_objects::token;
-use aptos_token_objects::aptos_token::AptosToken;
-
-public entry fun list_nft(
-    seller: &signer,
-    nft: Object<AptosToken>,  // Digital Asset standard
-    price: u64
-)
-```
-
-### 2. Object-Centric Development
-
-```move
-// MODERN (V2): Type-safe objects
-public entry fun transfer_item(
-    owner: &signer,
-    item: Object<Item>,  // Type-safe!
-    recipient: address
-)
-```
-
-### 3. Frontend Integration
-
-```typescript
-// Entry function (write)
-const payload = {
-  function: `${MODULE_ADDRESS}::counter::increment`,
-  functionArguments: []
-};
-await signAndSubmitTransaction({ data: payload });
-
-// View function (read)
-const [count] = await aptos.view({
-  payload: {
-    function: `${MODULE_ADDRESS}::counter::get_count`,
-    functionArguments: [accountAddress]
-  }
-});
-```
-
-## Official Skills Overview
+## Aptos Development Skills
 
 ### Move Smart Contracts
 
-- **write-contracts** - Generate secure Move V2 contracts
-- **generate-tests** - Create comprehensive test suites (100% coverage required)
-- **security-audit** - Security auditing before deployment
-- **deploy-contracts** - Deploy to devnet/testnet/mainnet
-- **search-aptos-examples** - Find patterns from aptos-core
-- **analyze-gas-optimization** - Optimize gas usage
-- **modernize-move** - Modernize V1 contracts to V2
+| Skill                                                                     | Purpose                                                      |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| [write-contracts](skills/move/write-contracts/SKILL.md)                   | Generate secure Aptos Move V2 smart contracts                |
+| [generate-tests](skills/move/generate-tests/SKILL.md)                     | Generate Move unit tests targeting 100% code coverage        |
+| [security-audit](skills/move/security-audit/SKILL.md)                     | Security audit for Move smart contracts before deployment    |
+| [deploy-contracts](skills/move/deploy-contracts/SKILL.md)                 | Deploy Move contracts to devnet, testnet, or mainnet         |
+| [search-aptos-examples](skills/move/search-aptos-examples/SKILL.md)       | Search aptos-core for reference implementations and patterns |
+| [analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md) | Analyze and reduce gas costs in Move smart contracts         |
+| [modernize-move](skills/move/modernize-move/SKILL.md)                     | Migrate Move V1 resource accounts to V2 object model         |
 
 ### TypeScript SDK
 
-- **use-ts-sdk** - TypeScript SDK orchestrator (routes to granular skills below)
-- **ts-sdk-client** - Aptos client and AptosConfig (Network, singleton, Bun)
-- **ts-sdk-account** - Account (signer) creation: generate, fromPrivateKey, fromDerivationPath
-- **ts-sdk-address** - AccountAddress creation, AIP-40 format, derived addresses (object/resource/token)
-- **ts-sdk-transactions** - Build, sign, submit, simulate; sponsored and multi-agent
-- **ts-sdk-view-and-query** - view(), getBalance, getAccountInfo, getAccountResources
-- **ts-sdk-types** - Move ↔ TypeScript types, TypeTag, bigint for u128/u256
-- **ts-sdk-wallet-adapter** - React wallet integration (AptosWalletAdapterProvider, useWallet)
+| Skill                                                                         | Purpose                                                                        |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [use-ts-sdk](skills/sdk/typescript/use-ts-sdk/SKILL.md)                       | Aptos TypeScript SDK orchestrator for frontend integration                     |
+| [ts-sdk-client](skills/sdk/typescript/ts-sdk-client/SKILL.md)                 | Set up Aptos client with AptosConfig and network selection                     |
+| [ts-sdk-account](skills/sdk/typescript/ts-sdk-account/SKILL.md)               | Create Aptos accounts and signers from private keys or derivation paths        |
+| [ts-sdk-address](skills/sdk/typescript/ts-sdk-address/SKILL.md)               | Parse and derive Aptos account addresses (AIP-40)                              |
+| [ts-sdk-transactions](skills/sdk/typescript/ts-sdk-transactions/SKILL.md)     | Build, sign, and submit Aptos transactions including sponsored and multi-agent |
+| [ts-sdk-view-and-query](skills/sdk/typescript/ts-sdk-view-and-query/SKILL.md) | Call Move view functions and query on-chain Aptos data                         |
+| [ts-sdk-types](skills/sdk/typescript/ts-sdk-types/SKILL.md)                   | Map Move types to TypeScript (u64, u128, address, vector)                      |
+| [ts-sdk-wallet-adapter](skills/sdk/typescript/ts-sdk-wallet-adapter/SKILL.md) | Integrate Aptos wallets into React apps with useWallet                         |
 
-## Community Skills Overview
+### Project Setup
 
-- **smoothsend-gasless** - Gasless transactions via SmoothSend (transactionSubmitter, Script Composer). Paid service;
-  free on testnet, credit-based on mainnet.
+| Skill                                                                | Purpose                                                 |
+| -------------------------------------------------------------------- | ------------------------------------------------------- |
+| [create-aptos-project](skills/project/create-aptos-project/SKILL.md) | Scaffold new Aptos dApp projects with create-aptos-dapp |
 
-## Example Workflows
+### Community Skills
 
-### Workflow: Build Move Contracts
+Community-contributed skills built by developers across the Aptos ecosystem. These are independently maintained and have
+not been reviewed by Aptos Labs. See [community-skills/](community-skills/) for contribution guidelines.
 
-1. Scaffold project with `npx create-aptos-dapp` (see CLAUDE.md)
-2. `/write-contracts` → Write Move modules
-3. `/generate-tests` → Create Move tests
-4. `/security-audit` → Audit before deployment
-5. `/deploy-contracts` → Deploy to network
+| Skill                                                              | Author    | Purpose                                                 |
+| ------------------------------------------------------------------ | --------- | ------------------------------------------------------- |
+| [smoothsend-gasless](community-skills/smoothsend-gasless/SKILL.md) | ivedmohan | Sponsor gas fees for Aptos transactions with SmoothSend |
 
-## Formatting
+## Quick Start
 
-This project uses Prettier for consistent markdown formatting:
+### Claude Code
 
-```bash
-# Format all markdown files
-npm run format
+Skills activate automatically based on what you say:
 
-# Check formatting without making changes
-npm run format:check
+```
+"Create a new dApp"           → project scaffolding
+"Write an NFT contract"       → /write-contracts
+"Write tests for this"        → /generate-tests
+"Check security"              → /security-audit
+"Deploy to testnet"           → /deploy-contracts
+"Add a frontend"              → /use-ts-sdk
 ```
 
-## Resources
+### Cursor / Copilot
 
-### Official Aptos Documentation
+Reference skill files directly in prompts:
 
-- **Object Model:** https://aptos.dev/build/smart-contracts/object
-- **Security Guidelines:** https://aptos.dev/build/smart-contracts/move-security-guidelines
-- **Move Book:** https://aptos.dev/build/smart-contracts/book
-- **TypeScript SDK:** https://aptos.dev/sdks/ts-sdk
-- **Wallet Adapter:** https://aptos.dev/sdks/wallet-adapter
+```
+@skills/move/write-contracts/SKILL.md Help me build an NFT marketplace
+```
 
-### Template Sources
+Include `CLAUDE.md` in your workspace context for full skill routing and auto-recommendations.
 
-- **Fullstack Template:** https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/boilerplate-template
-- **Contract-only Template:**
-  https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/contract-boilerplate-template
+## Aptos dApp Development Workflow
+
+1. **Create** — `/create-aptos-project` scaffolds with `npx create-aptos-dapp`
+2. **Write** — `/write-contracts` generates Move modules
+3. **Test** — `/generate-tests` creates test suites with 100% coverage
+4. **Audit** — `/security-audit` checks for vulnerabilities
+5. **Deploy** — `/deploy-contracts` publishes to your target network
+6. **Frontend** — `/use-ts-sdk` wires up TypeScript integration
+
+See [CLAUDE.md](CLAUDE.md) for all workflows, global rules, and pattern references.
+
+## Learn More
+
+| Resource                               | Description                                                                     |
+| -------------------------------------- | ------------------------------------------------------------------------------- |
+| [CLAUDE.md](CLAUDE.md)                 | Full guide for AI assistants — workflows, rules, skill routing                  |
+| [INSTALL.md](INSTALL.md)               | Installation options and selective skill setup                                  |
+| [patterns/](patterns/)                 | Reference docs for objects, digital assets, fungible assets, security, and more |
+| [community-skills/](community-skills/) | Community-contributed skills and contribution guidelines                        |
+| [aptos.dev](https://aptos.dev)         | Official Aptos documentation                                                    |
 
 ## Contributing
 
-We welcome contributions! Areas to contribute:
-
-1. **Skills** - Add new skills or improve existing ones
-2. **Patterns** - Enhance pattern documentation
-3. **Examples** - Add working examples
-4. **Bug Fixes** - Fix issues in skill logic or examples
+We welcome contributions — new skills, pattern improvements, examples, and bug fixes. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## Roadmap
-
-- [x] Core Move skills (8 skills)
-- [x] Agent Skills Open Standard compliance
-- [x] TypeScript SDK skills (8 granular skills: client, account, address, transactions, view/query, types, wallet
-      adapter + orchestrator)
-- [x] Wallet integration skill (ts-sdk-wallet-adapter)
-- [ ] E2E testing skills (Coming Soon)
-- [ ] Example projects
-
----
-
-**Built for secure, modern Aptos dApp development with AI assistance.**
+MIT — see [LICENSE](LICENSE) for details.
