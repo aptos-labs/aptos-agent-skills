@@ -14,7 +14,10 @@ jobs:
 
       - name: Install yq
         run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          YQ_VERSION="v4.52.4"
+          YQ_CHECKSUM="0c4d965ea944b64b8fddaf7f27779ee3034e5693263786506ccd1c120f184e8c"
+          sudo wget -qO /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+          echo "${YQ_CHECKSUM}  /usr/local/bin/yq" | sha256sum -c -
           sudo chmod +x /usr/local/bin/yq
 
       - name: Validate SKILL.md frontmatter
@@ -34,46 +37,51 @@ jobs:
               continue
             fi
 
+            file_errors=0
+
             # Check required field: name
-            name=$(echo "$frontmatter" | yq '.name // ""')
+            name=$(echo "$frontmatter" | yq -r '.name // ""')
             if [ -z "$name" ] || [ "$name" = "null" ]; then
               echo "  ERROR: Missing required field 'name'"
-              errors=$((errors + 1))
+              file_errors=$((file_errors + 1))
             elif [ ${#name} -gt 64 ]; then
               echo "  ERROR: name exceeds 64 characters: '$name'"
-              errors=$((errors + 1))
+              file_errors=$((file_errors + 1))
             elif ! echo "$name" | grep -qE '^[a-z0-9]([a-z0-9-]*[a-z0-9])?$'; then
               echo "  ERROR: name must be lowercase alphanumeric + hyphens, no leading/trailing hyphens: '$name'"
-              errors=$((errors + 1))
+              file_errors=$((file_errors + 1))
             elif echo "$name" | grep -q -- '--'; then
               echo "  ERROR: name must not contain consecutive hyphens: '$name'"
-              errors=$((errors + 1))
+              file_errors=$((file_errors + 1))
             fi
 
             # Check name matches directory
             if [ "$name" != "$dir_name" ]; then
               echo "  ERROR: name '$name' does not match directory '$dir_name'"
-              errors=$((errors + 1))
+              file_errors=$((file_errors + 1))
             fi
 
             # Check required field: description
-            desc=$(echo "$frontmatter" | yq '.description // ""')
+            desc=$(echo "$frontmatter" | yq -r '.description // ""')
             if [ -z "$desc" ] || [ "$desc" = "null" ]; then
               echo "  ERROR: Missing required field 'description'"
-              errors=$((errors + 1))
+              file_errors=$((file_errors + 1))
             elif [ ${#desc} -gt 1024 ]; then
               echo "  ERROR: description exceeds 1024 characters"
-              errors=$((errors + 1))
+              file_errors=$((file_errors + 1))
             fi
 
             # Check allowed-tools is a string if present
             tools_type=$(echo "$frontmatter" | yq '(.["allowed-tools"] // null) | type')
             if [ "$tools_type" = "!!seq" ]; then
               echo "  ERROR: allowed-tools must be a space-delimited string, not a list"
-              errors=$((errors + 1))
+              file_errors=$((file_errors + 1))
             fi
 
-            echo "  OK"
+            if [ $file_errors -eq 0 ]; then
+              echo "  OK"
+            fi
+            errors=$((errors + file_errors))
           done
 
           if [ $errors -gt 0 ]; then
