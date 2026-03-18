@@ -1,9 +1,9 @@
 ---
 name: search-aptos-examples
 description:
-  "Searches aptos-core and daily-move for reference implementations before writing contracts. Triggers on:
-  'search examples', 'find example', 'check aptos-core', 'is there an example', 'reference implementation', 'how does
-  aptos implement', 'similar contract', 'daily-move'."
+  "Searches aptos-core and daily-move for reference implementations before writing contracts. Triggers on: 'search
+  examples', 'find example', 'check aptos-core', 'is there an example', 'reference implementation', 'how does aptos
+  implement', 'similar contract', 'daily-move'."
 metadata:
   category: move
   tags: ["examples", "reference", "patterns", "aptos-core", "daily-move"]
@@ -14,13 +14,14 @@ metadata:
 
 ## Overview
 
-This skill helps you find relevant examples in official Aptos repositories before writing new contracts. **Always
-search examples first** to follow established patterns.
+This skill helps you find relevant examples in official Aptos repositories before writing new contracts. **Always search
+examples first** to follow established patterns.
 
 **Repositories:**
 
 - **`aptos-labs/aptos-core/aptos-move/move-examples/`** — 53+ official Move examples demonstrating best practices
-- **`aptos-labs/daily-move/snippets/`** — 17 curated educational examples covering design patterns, Move 2 features, composable NFTs, and more
+- **`aptos-labs/daily-move/snippets/`** — 17 curated educational examples covering design patterns, Move 2 features,
+  composable NFTs, and more
 
 ## Core Workflow
 

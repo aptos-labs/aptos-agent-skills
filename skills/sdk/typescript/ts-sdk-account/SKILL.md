@@ -3,8 +3,8 @@ name: ts-sdk-account
 description:
   "How to create and use Account (signer) in @aptos-labs/ts-sdk. Covers Account.generate(), fromPrivateKey(),
   fromDerivationPath(), Ed25519 vs SingleKey vs MultiKey vs Keyless, serialization (fromHex/toHex). Triggers on:
-  'Account.generate', 'Account.fromPrivateKey', 'Ed25519PrivateKey', 'SDK account', 'mnemonic',
-  'SingleKeyAccount', 'KeylessAccount'."
+  'Account.generate', 'Account.fromPrivateKey', 'Ed25519PrivateKey', 'SDK account', 'mnemonic', 'SingleKeyAccount',
+  'KeylessAccount'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "account", "signer", "private-key", "ed25519", "keyless"]
@@ -15,32 +15,37 @@ metadata:
 
 ## Purpose
 
-Guide creation and use of **Account** (signer) in `@aptos-labs/ts-sdk`. An Account holds address + key material and can sign transactions and messages. **Creating an Account does NOT create the account on-chain**; use faucet or transfer to fund it.
+Guide creation and use of **Account** (signer) in `@aptos-labs/ts-sdk`. An Account holds address + key material and can
+sign transactions and messages. **Creating an Account does NOT create the account on-chain**; use faucet or transfer to
+fund it.
 
 ## ALWAYS
 
-1. **Use `Account.generate()` or `Account.fromPrivateKey()` only in server/script** – never in frontend; use wallet adapter for end users.
+1. **Use `Account.generate()` or `Account.fromPrivateKey()` only in server/script** – never in frontend; use wallet
+   adapter for end users.
 2. **Load private keys from env (e.g. `process.env.PRIVATE_KEY`) on server** – never hardcode.
 3. **Use `account.accountAddress` when building transactions** – pass as sender/secondary signers.
-4. **Use `aptos.signAndSubmitTransaction({ signer: account, transaction })`** with the same Account instance that holds the key.
+4. **Use `aptos.signAndSubmitTransaction({ signer: account, transaction })`** with the same Account instance that holds
+   the key.
 
 ## NEVER
 
 1. **Do not use `Account.generate()` or raw private keys in browser/frontend** – use wallet adapter.
 2. **Do not hardcode private keys** in source or commit to git.
-3. **Do not confuse `Account` (API namespace) with `Account` (signer class)** – API is `aptos.account.*`; signer is the class from `Account` module (e.g. `Account.fromPrivateKey`).
+3. **Do not confuse `Account` (API namespace) with `Account` (signer class)** – API is `aptos.account.*`; signer is the
+   class from `Account` module (e.g. `Account.fromPrivateKey`).
 
 ---
 
 ## Account types (signing schemes)
 
-| Type | Class | Use case |
-|------|--------|----------|
-| Ed25519 (legacy) | `Ed25519Account` | Single Ed25519 key, legacy auth |
-| SingleKey | `SingleKeyAccount` | Ed25519 or Secp256k1, unified auth |
-| MultiKey | `MultiKeyAccount` | Multi-sig |
-| Keyless | `KeylessAccount` | Keyless (e.g. OIDC) |
-| Federated Keyless | `FederatedKeylessAccount` | Federated keyless |
+| Type              | Class                     | Use case                           |
+| ----------------- | ------------------------- | ---------------------------------- |
+| Ed25519 (legacy)  | `Ed25519Account`          | Single Ed25519 key, legacy auth    |
+| SingleKey         | `SingleKeyAccount`        | Ed25519 or Secp256k1, unified auth |
+| MultiKey          | `MultiKeyAccount`         | Multi-sig                          |
+| Keyless           | `KeylessAccount`          | Keyless (e.g. OIDC)                |
+| Federated Keyless | `FederatedKeylessAccount` | Federated keyless                  |
 
 ---
 
@@ -78,7 +83,7 @@ const account = Account.fromPrivateKey({ privateKey });
 // Ed25519 SingleKey (unified)
 const accountSingle = Account.fromPrivateKey({
   privateKey: new Ed25519PrivateKey(privateKeyHex),
-  legacy: false,
+  legacy: false
 });
 
 // Secp256k1 (always SingleKey)
@@ -88,7 +93,7 @@ const accountSecp = Account.fromPrivateKey({ privateKey: secpKey });
 // Optional: fixed address (e.g. after key rotation)
 const accountWithAddr = Account.fromPrivateKey({
   privateKey,
-  address: "0x...",
+  address: "0x..."
 });
 ```
 
@@ -112,7 +117,7 @@ const accSingle = Account.fromDerivationPath({ mnemonic, path, legacy: false });
 const accSecp = Account.fromDerivationPath({
   scheme: SigningSchemeInput.Secp256k1,
   mnemonic,
-  path,
+  path
 });
 ```
 
@@ -175,7 +180,7 @@ const ok = account.verifySignature({ message: messageHex, signature: sig });
 const okAsync = await account.verifySignatureAsync({
   aptosConfig: aptos.config,
   message: messageHex,
-  signature: sig,
+  signature: sig
 });
 ```
 
@@ -188,7 +193,7 @@ When the same key may have multiple on-chain accounts (e.g. after rotation), use
 ```typescript
 // Returns list of accounts owned by this key on chain
 const accounts = await aptos.deriveOwnedAccountsFromSigner({
-  signer: account,
+  signer: account
 });
 // Prefer wallet or explicit address for production; this is for scripts/tooling
 ```
@@ -197,12 +202,12 @@ const accounts = await aptos.deriveOwnedAccountsFromSigner({
 
 ## Common mistakes
 
-| Mistake | Correct approach |
-|--------|-------------------|
-| Using `Account.generate()` in frontend | Use wallet adapter; generate only in server/script |
-| Hardcoding private key | Load from `process.env` (server) and never commit |
-| Using `aptos.account` as signer | `aptos.account` is API namespace; signer is `Account.fromPrivateKey()` / `Account.generate()` |
-| Expecting account to exist on-chain after generate | Fund with faucet or transfer first |
+| Mistake                                            | Correct approach                                                                              |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Using `Account.generate()` in frontend             | Use wallet adapter; generate only in server/script                                            |
+| Hardcoding private key                             | Load from `process.env` (server) and never commit                                             |
+| Using `aptos.account` as signer                    | `aptos.account` is API namespace; signer is `Account.fromPrivateKey()` / `Account.generate()` |
+| Expecting account to exist on-chain after generate | Fund with faucet or transfer first                                                            |
 
 ---
 
@@ -210,4 +215,5 @@ const accounts = await aptos.deriveOwnedAccountsFromSigner({
 
 - SDK: `src/account/Account.ts`, `src/account/Ed25519Account.ts`, `src/account/AccountUtils.ts`, `src/api/account.ts`
 - Pattern: [TYPESCRIPT_SDK.md](../../../../patterns/fullstack/TYPESCRIPT_SDK.md)
-- Related: [ts-sdk-client](../ts-sdk-client/SKILL.md), [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md), [use-ts-sdk](../use-ts-sdk/SKILL.md)
+- Related: [ts-sdk-client](../ts-sdk-client/SKILL.md), [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md),
+  [use-ts-sdk](../use-ts-sdk/SKILL.md)

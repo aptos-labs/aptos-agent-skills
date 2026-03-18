@@ -405,7 +405,8 @@ fun apply_adjustment(balance: u64, adjustment: i64): u64 {
 
 ## For Loops (Move 2.0+)
 
-**Always use `for` loops over `while` loops** when iterating with a counter. The `for` loop eliminates counter boilerplate and makes intent clear.
+**Always use `for` loops over `while` loops** when iterating with a counter. The `for` loop eliminates counter
+boilerplate and makes intent clear.
 
 ### Range-Based For Loop
 
@@ -440,12 +441,12 @@ fun sum_all(items: &vector<u64>): u64 {
 
 ### When to Use Each Loop Style
 
-| Style | When to Use |
-|-------|-------------|
-| `for (i in 0..n)` | **Default choice.** Counter-based iteration over ranges or vector indices |
-| `vector::for_each_ref` / `vector::fold` / etc. | Functional-style iteration with lambdas (see Stdlib Inline Functions below) |
-| `while` | When iteration count isn't known upfront: dynamic termination conditions, step size != 1, searching/draining |
-| `loop` | Truly infinite loops (e.g., event loops). **Avoid** when a `while` with an exit condition would be clearer |
+| Style                                          | When to Use                                                                                                  |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `for (i in 0..n)`                              | **Default choice.** Counter-based iteration over ranges or vector indices                                    |
+| `vector::for_each_ref` / `vector::fold` / etc. | Functional-style iteration with lambdas (see Stdlib Inline Functions below)                                  |
+| `while`                                        | When iteration count isn't known upfront: dynamic termination conditions, step size != 1, searching/draining |
+| `loop`                                         | Truly infinite loops (e.g., event loops). **Avoid** when a `while` with an exit condition would be clearer   |
 
 ---
 
@@ -453,14 +454,18 @@ fun sum_all(items: &vector<u64>): u64 {
 
 ### Why Inline Functions Exist
 
-`inline fun` means the compiler pastes the function body into every call site. This enables two things regular functions cannot do:
+`inline fun` means the compiler pastes the function body into every call site. This enables two things regular functions
+cannot do:
 
 1. **Accept lambda parameters** — only inline functions can take lambdas like `|x| x + 1`
-2. **Return references from borrowed state** — a regular function can't return `&T` or `&mut T` from `borrow_global` because the reference would escape the function scope. An inline function can, because after inlining the borrow stays within the caller's scope.
+2. **Return references from borrowed state** — a regular function can't return `&T` or `&mut T` from `borrow_global`
+   because the reference would escape the function scope. An inline function can, because after inlining the borrow
+   stays within the caller's scope.
 
 ### Inline for Reference Returns
 
-This is the primary code-reuse pattern for inline functions. A regular `fun` cannot return a reference to data borrowed from global storage — the compiler rejects it. `inline fun` solves this:
+This is the primary code-reuse pattern for inline functions. A regular `fun` cannot return a reference to data borrowed
+from global storage — the compiler rejects it. `inline fun` solves this:
 
 ```move
 /// Gets the game mutably — MUST be inline because it returns &mut from borrow_global_mut
@@ -525,7 +530,8 @@ items.enumerate_ref(|index, item| {
 
 ### Stdlib Inline Functions (Prefer These)
 
-The `std::vector` module provides inline functions for common iteration patterns. **Always use these instead of defining custom helpers.**
+The `std::vector` module provides inline functions for common iteration patterns. **Always use these instead of defining
+custom helpers.**
 
 #### Iteration
 
@@ -597,7 +603,8 @@ public fun dot_product(a: vector<u64>, b: vector<u64>): u64 {
 
 ### Custom Inline Functions
 
-Only define custom inline helpers when no stdlib function fits. Prefer `for` loops for counter-based iteration inside custom helpers.
+Only define custom inline helpers when no stdlib function fits. Prefer `for` loops for counter-based iteration inside
+custom helpers.
 
 ```move
 /// Custom: sliding window pairs (no stdlib equivalent)
@@ -611,13 +618,15 @@ inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
 
 ### When to Use Inline Functions
 
-| Use Case | Example |
-|----------|---------|
+| Use Case                                  | Example                                                                                                                           |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | **Return references from borrowed state** | `inline fun get_game_mut(...): &mut TicTacToe` — reuse lookup/validation logic that returns `&T` or `&mut T` from `borrow_global` |
-| **Accept lambda parameters** | `inline fun apply(f: \|u64\| u64, x: u64): u64` — higher-order functions |
-| **Stdlib iteration** | Already provided: `vector::for_each_ref`, `vector::map`, `vector::fold`, etc. |
+| **Accept lambda parameters**              | `inline fun apply(f: \|u64\| u64, x: u64): u64` — higher-order functions                                                          |
+| **Stdlib iteration**                      | Already provided: `vector::for_each_ref`, `vector::map`, `vector::fold`, etc.                                                     |
 
-**Do NOT use inline when:** the function doesn't take lambdas and doesn't return references. Just use a regular `fun`. Inlining can increase *or* decrease gas cost depending on call-site count and code size — prefer regular `fun` for performance-neutral helpers.
+**Do NOT use inline when:** the function doesn't take lambdas and doesn't return references. Just use a regular `fun`.
+Inlining can increase _or_ decrease gas cost depending on call-site count and code size — prefer regular `fun` for
+performance-neutral helpers.
 
 ### Inline Function Rules
 
@@ -1279,7 +1288,8 @@ package fun internal_helper() {
 - ✅ Use `match` expressions for exhaustive enum handling
 - ✅ Add wildcard `_` arms in `match` for future upgrade compatibility
 - ✅ Use `for` loops for counter-based iteration — prefer `for (i in 0..n)` over manual counter `while` loops
-- ✅ Use stdlib inline functions for vector iteration — receiver style: `v.for_each_ref(|x| ...)`, `v.map(|x| ...)`, `v.fold(init, |acc, x| ...)`
+- ✅ Use stdlib inline functions for vector iteration — receiver style: `v.for_each_ref(|x| ...)`, `v.map(|x| ...)`,
+  `v.fold(init, |acc, x| ...)`
 - ✅ Use lambdas for concise operation definitions
 - ✅ Only define custom inline functions when no stdlib equivalent exists
 - ✅ Use `Object<T>` for type-safe object references
@@ -1303,7 +1313,8 @@ package fun internal_helper() {
 - ❌ Skip event emission for significant activities
 - ❌ Use old syntax (`vector::borrow`) when V2 syntax (`vector[i]`) is available
 - ❌ Use `while` loops with manual counters when `for (i in 0..n)` works
-- ❌ Define custom `for_each`/`map`/`fold` helpers when stdlib versions exist (use `v.for_each_ref(...)`, `v.map(...)`, etc.)
+- ❌ Define custom `for_each`/`map`/`fold` helpers when stdlib versions exist (use `v.for_each_ref(...)`, `v.map(...)`,
+  etc.)
 - ❌ Skip `init_module` when contracts need initialization
 - ❌ Use custom signed integer libraries when native `i8`-`i256` types are available
 - ❌ Store function values without considering reentrancy implications
@@ -1333,4 +1344,6 @@ package fun internal_helper() {
 
 ---
 
-**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace `for` loops for counter-based iteration, stdlib inline functions, lambdas, function values, enums, and type-safe objects. Use `while` when the termination condition is dynamic.
+**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace `for` loops for
+counter-based iteration, stdlib inline functions, lambdas, function values, enums, and type-safe objects. Use `while`
+when the termination condition is dynamic.

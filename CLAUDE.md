@@ -51,6 +51,7 @@ npx create-aptos-dapp my-contract \
 | `/search-aptos-examples`    | [search-aptos-examples](skills/move/search-aptos-examples/SKILL.md)           | Find patterns from aptos-core    |
 | `/analyze-gas-optimization` | [analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md)     | Optimize gas usage               |
 | `/modernize-move`           | [modernize-move](skills/move/modernize-move/SKILL.md)                         | Modernize V1 contracts to V2     |
+| `/create-aptos-project`     | [create-aptos-project](skills/project/create-aptos-project/SKILL.md)          | Scaffold new Aptos projects      |
 | `/use-ts-sdk`               | [use-ts-sdk](skills/sdk/typescript/use-ts-sdk/SKILL.md)                       | TypeScript SDK orchestrator      |
 | `/ts-sdk-client`            | [ts-sdk-client](skills/sdk/typescript/ts-sdk-client/SKILL.md)                 | SDK client setup                 |
 | `/ts-sdk-account`           | [ts-sdk-account](skills/sdk/typescript/ts-sdk-account/SKILL.md)               | Account/signer creation          |
@@ -64,20 +65,20 @@ npx create-aptos-dapp my-contract \
 
 ### Intent-to-Command Mapping
 
-| User Says                                                    | Recommend                           |
-| ------------------------------------------------------------ | ----------------------------------- |
-| "write contract", "build module", "create smart contract"    | `/write-contracts`                  |
-| "write tests", "add coverage", "test this"                   | `/generate-tests`                   |
-| "audit", "check security", "review for vulnerabilities"      | `/security-audit`                   |
-| "deploy", "publish", "put on testnet/mainnet"                | `/deploy-contracts`                 |
-| "find example", "search aptos", "how does X work"            | `/search-aptos-examples`            |
-| "optimize gas", "reduce costs", "make cheaper"               | `/analyze-gas-optimization`         |
-| "modernize", "upgrade to v2", "update syntax"                | `/modernize-move`                   |
-| "typescript", "frontend", "call from JS", "SDK", "fullstack" | `/use-ts-sdk`                       |
-| "wallet adapter", "connect wallet", "useWallet"              | `/ts-sdk-wallet-adapter`            |
-| "build app", "create app", "make app", "new app"             | Build a dApp workflow (below)       |
-| "build dApp", "create dApp", "build project", "new project"  | Build a dApp workflow (below)       |
-| "create project", "scaffold", "start project", "set up"      | Project Scaffolding section (above) |
+| User Says                                                    | Recommend                   |
+| ------------------------------------------------------------ | --------------------------- |
+| "write contract", "build module", "create smart contract"    | `/write-contracts`          |
+| "write tests", "add coverage", "test this"                   | `/generate-tests`           |
+| "audit", "check security", "review for vulnerabilities"      | `/security-audit`           |
+| "deploy", "publish", "put on testnet/mainnet"                | `/deploy-contracts`         |
+| "find example", "search aptos", "how does X work"            | `/search-aptos-examples`    |
+| "optimize gas", "reduce costs", "make cheaper"               | `/analyze-gas-optimization` |
+| "modernize", "upgrade to v2", "update syntax"                | `/modernize-move`           |
+| "typescript", "frontend", "call from JS", "SDK", "fullstack" | `/use-ts-sdk`               |
+| "wallet adapter", "connect wallet", "useWallet"              | `/ts-sdk-wallet-adapter`    |
+| "build app", "create app", "make app", "new app"             | `/create-aptos-project`     |
+| "build dApp", "create dApp", "build project", "new project"  | `/create-aptos-project`     |
+| "create project", "scaffold", "start project", "set up"      | `/create-aptos-project`     |
 
 ### Auto-Recommendation Rules
 
@@ -94,7 +95,7 @@ npx create-aptos-dapp my-contract \
 of how the user phrases it ("build me a ...", "create a ...", "make a ...", "I want to build ..."). Step 1 is mandatory
 — never skip scaffolding.
 
-1. **Scaffold project with `npx create-aptos-dapp`** (see Project Scaffolding above) — NEVER skip this step
+1. `/create-aptos-project` → scaffold with `npx create-aptos-dapp` — NEVER skip this step
 2. `/write-contracts` → write Move modules
 3. `/generate-tests` → create test suite, verify 100% coverage
 4. `/security-audit` → audit before deployment
@@ -190,26 +191,25 @@ Community skills are built by developers across the Aptos ecosystem. They showca
 patterns. These skills are independently maintained by their authors and have not been reviewed or audited by Aptos
 Labs. See [community-skills/README.md](community-skills/README.md) for contribution guidelines.
 
-| Skill | Author | Purpose |
-| --- | --- | --- |
+| Skill                                                              | Author    | Purpose                                                              |
+| ------------------------------------------------------------------ | --------- | -------------------------------------------------------------------- |
 | [smoothsend-gasless](community-skills/smoothsend-gasless/SKILL.md) | ivedmohan | Gasless / sponsor gas for users (paid; free testnet, credit mainnet) |
 
 ### Community Intent-to-Command Mapping
 
-| User Says | Recommend |
-| --- | --- |
+| User Says                                                                          | Recommend             |
+| ---------------------------------------------------------------------------------- | --------------------- |
 | "gasless", "sponsor gas", "users pay no APT", "transactionSubmitter", "SmoothSend" | `/smoothsend-gasless` |
 
 ### Routing Rule for Community Skills
 
-When a user's intent matches a community skill, **do not silently invoke it**.
-Instead, pause and inform the user:
+When a user's intent matches a community skill, **do not silently invoke it**. Instead, pause and inform the user:
 
 1. Mention that a community-contributed skill is available for their use case
 2. Name the skill and its author
 3. Briefly note what it does and whether it involves a paid/third-party service
-4. Ask the user if they'd like to use it, or if they prefer an alternative approach
-   (e.g., native Aptos SDK capabilities)
+4. Ask the user if they'd like to use it, or if they prefer an alternative approach (e.g., native Aptos SDK
+   capabilities)
 
 Only proceed with the community skill after the user opts in.
 

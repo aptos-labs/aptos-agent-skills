@@ -19,20 +19,20 @@ Aptos Vibe tool) to help developers build secure, well-tested Aptos dApps follow
 ### Via npx skills (Recommended)
 
 ```bash
-npx skills add iskysun96/aptos-agent-skills
+npx skills add aptos-labs/aptos-agent-skills
 ```
 
 ### Claude Code Plugin
 
 ```bash
-/plugin marketplace add iskysun96/aptos-agent-skills
+/plugin marketplace add aptos-labs/aptos-agent-skills
 ```
 
 ### Selective Installation
 
 ```bash
 # Core Move skills only
-npx skills add iskysun96/aptos-agent-skills \
+npx skills add aptos-labs/aptos-agent-skills \
   --skill write-contracts \
   --skill generate-tests \
   --skill security-audit \
@@ -48,9 +48,9 @@ See [INSTALL.md](INSTALL.md) for more installation options.
 1. Install via npx skills or clone this repository:
 
    ```bash
-   npx skills add iskysun96/aptos-agent-skills
+   npx skills add aptos-labs/aptos-agent-skills
    # or
-   git clone https://github.com/iskysun96/aptos-agent-skills.git
+   git clone https://github.com/aptos-labs/aptos-agent-skills.git
    ```
 
 2. The `CLAUDE.md` file will be automatically detected and loaded by Claude Code
@@ -188,7 +188,8 @@ const [count] = await aptos.view({
 
 ## Community Skills Overview
 
-- **smoothsend-gasless** - Gasless transactions via SmoothSend (transactionSubmitter, Script Composer). Paid service; free on testnet, credit-based on mainnet.
+- **smoothsend-gasless** - Gasless transactions via SmoothSend (transactionSubmitter, Script Composer). Paid service;
+  free on testnet, credit-based on mainnet.
 
 ## Example Workflows
 
