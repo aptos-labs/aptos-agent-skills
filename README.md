@@ -19,14 +19,21 @@ lifecycle — from project scaffolding to deployment.
 
 ## Install
 
+#### Recommended
+
 ```bash
-# Recommended
 npx skills add aptos-labs/aptos-agent-skills
+```
 
-# Claude Code plugin
+#### Claude Code plugin
+
+```
 /plugin marketplace add aptos-labs/aptos-agent-skills
+```
 
-# Manual
+#### Manual
+
+```bash
 git clone https://github.com/aptos-labs/aptos-agent-skills.git
 ```
 
